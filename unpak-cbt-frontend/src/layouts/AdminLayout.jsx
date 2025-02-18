@@ -5,7 +5,7 @@ import Navbar from "../components/Navbar";
 
 const AdminLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(false); // Untuk mode collapse di desktop
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -28,7 +28,7 @@ const AdminLayout = () => {
       <div className="flex-1 flex flex-col">
         {/* Navbar dengan tombol collapse di desktop */}
         <Navbar toggleSidebar={toggleSidebar} toggleCollapse={toggleCollapse} />
-        <div className="p-5">
+        <div className="flex-1 overflow-auto p-5 bg-gray-100">
           <Outlet />
         </div>
       </div>
