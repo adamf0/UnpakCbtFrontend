@@ -1,8 +1,16 @@
 import React, { useState } from "react";
 import { HiEye, HiEyeOff } from "react-icons/hi";
+import Button from "../components/Button";
+import Input from "../components/Input";
 
 const Login = () => {
   const [isVisible, setIsVisible] = useState(false);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleClick = () => {
+    alert("Button diklik!");
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-purple-400 px-4">
@@ -23,35 +31,23 @@ const Login = () => {
 
         {/* Form */}
         <form className="space-y-4">
-          {/* Email */}
-          <div>
-            <label className="block text-gray-700 mb-2">Username</label>
-            <input
-              type="text"
-              placeholder="Masukan username"
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 bg-gray-100"
-            />
-          </div>
+          
+          <Input
+            label="Username"
+            type="text"
+            placeholder="Masukkan username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+          />
 
-          {/* Password */}
-          <div>
-            <label className="block text-gray-700 mb-2">Password</label>
-            <div className="relative">
-              <input
-                type={isVisible ? "text" : "password"} // Toggle antara "password" & "text"
-                placeholder="Masukan password"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 bg-gray-100 pr-10"
-              />
-              {/* Toggle Button */}
-              <button
-                type="button"
-                onClick={() => setIsVisible(!isVisible)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-600 hover:text-purple-500"
-              >
-                {isVisible ? <HiEye size={20} /> : <HiEyeOff size={20} />}
-              </button>
-            </div>
-          </div>
+          <Input
+            label="Password"
+            type="password"
+            placeholder="Masukkan password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          
 
           {/* Remember Me & Forgot Password */}
           {/* <div className="flex justify-between text-sm text-gray-600">
@@ -67,12 +63,12 @@ const Login = () => {
           <div className="mb-8"></div>
 
           {/* Login Button */}
-          <button className="w-full bg-purple-500 text-white py-2 rounded-md hover:bg-purple-600 transition">
-            Masuk
-          </button>
+          <Button onClick={handleClick} className="w-full">Masuk</Button>
         </form>
 
-        <div className="text-sm text-center text-gray-400 mt-5">2025 Universitas Pakuan All Right Reserved.</div>
+        <div className="text-sm text-center text-gray-400 mt-5">
+          2025 Universitas Pakuan All Right Reserved.
+        </div>
 
         {/* Register Option */}
         {/* <p className="text-sm text-center text-gray-600 mt-4">
