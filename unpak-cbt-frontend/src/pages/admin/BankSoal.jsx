@@ -1,48 +1,69 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { FaPlus } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import Button from "../../components/Button";
 
 const BankSoal = () => {
   const [data, setData] = useState([]);
   const [dropdownOpen, setDropdownOpen] = useState(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [selectedUUID, setSelectedUUID] = useState(null);
+  const dropdownRefs = useRef({}); // Gunakan objek untuk referensi banyak dropdown
 
   useEffect(() => {
     axios
       .get("/api/BankSoal")
       .then((response) => {
         setData(response.data);
+        console.log("Data fetched:", response.data);
       })
       .catch((error) => {
         console.error("Error fetching data:", error);
       });
   }, []);
 
+  // Fungsi untuk menutup dropdown jika klik terjadi di luar
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        dropdownOpen !== null &&
+        dropdownRefs.current[dropdownOpen] &&
+        !dropdownRefs.current[dropdownOpen].contains(event.target)
+      ) {
+        setDropdownOpen(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside, true); // Pakai capture phase
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside, true);
+    };
+  }, [dropdownOpen]);
+
   const toggleDropdown = (uuid) => {
     setDropdownOpen(dropdownOpen === uuid ? null : uuid);
   };
 
-  const handleConfirmDelete = (uuid) => {
-    setSelectedUUID(uuid);   // simpan ID (UUID) yang ingin dihapus
-    setShowConfirm(true);    // tampilkan modal konfirmasi
-    setDropdownOpen(null);   // tutup dropdown
+  const handleConfirmDelete = (uuid, event) => {
+    event.stopPropagation(); // Mencegah klik bocor
+    setSelectedUUID(uuid);
+    setShowConfirm(true);
+    setDropdownOpen(null);
   };
 
   const handleDelete = async () => {
     try {
       await axios.delete(`/api/BankSoal/${selectedUUID}`);
-      // Hapus item dari state agar tidak perlu reload
-      setData((prevData) => prevData.filter((item) => item.uuid !== selectedUUID));
-
+      setData((prevData) =>
+        prevData.filter((item) => item.uuid !== selectedUUID)
+      );
       alert("Data berhasil dihapus!");
     } catch (error) {
       console.error("Error deleting data:", error);
       alert("Terjadi kesalahan saat menghapus data.");
     } finally {
-      // Tutup modal konfirmasi dan reset state
       setShowConfirm(false);
       setSelectedUUID(null);
     }
@@ -58,57 +79,114 @@ const BankSoal = () => {
       {/* Header */}
       <div className="flex justify-end items-center mb-4">
         <Link to="/admin/bank-soal/tambah">
-          <button className="flex items-center bg-purple-600 text-white text-sm px-4 py-2 rounded-md shadow-md hover:bg-purple-700 transition">
-            <FaPlus size={14} className="mr-2" />
-            Tambah Data
-          </button>
+          <Button>
+            <div className="flex items-center">
+              <FaPlus size={14} className="mr-2" />
+              Tambah Data
+            </div>
+          </Button>
         </Link>
       </div>
-      <div className="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {data.map((item) => (
-          <div
-            key={item.uuid}
-            className="relative bg-white shadow-md rounded-lg p-4 border border-gray-200"
-          >
-            {/* Judul Bank Soal */}
-            <h3 className="text-lg font-semibold">{item.judul}</h3>
 
-            {/* Icon Three Dots untuk Dropdown */}
-            <div className="absolute top-3 right-3">
-              <button
-                onClick={() => toggleDropdown(item.uuid)}
-                className="p-2 rounded-full hover:bg-gray-200"
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        {data.map((item) => {
+          let parsedRule = {};
+
+          try {
+            parsedRule = JSON.parse(item.rule.replace(/'/g, '"'));
+          } catch (error) {
+            console.error("Error parsing rule:", error);
+          }
+
+          return (
+            <div
+              key={item.uuid}
+              className={`relative bg-white shadow-md rounded-lg p-4 border-l-4 ${
+                item.status === "aktif" ? "border-green-500" : "border-red-500"
+              }`}
+            >
+              {/* Judul Bank Soal */}
+              <h3 className="text-lg font-semibold break-words mb-4">
+                {item.judul}
+              </h3>
+
+              {/* Fakultas */}
+              <p className="text-sm text-gray-600 break-words">
+                <strong>Fakultas:</strong>{" "}
+                {parsedRule.fakultas && parsedRule.fakultas.length > 0
+                  ? parsedRule.fakultas.map((f) => f.label).join(", ")
+                  : "-"}
+              </p>
+
+              {/* Prodi */}
+              <p className="text-sm text-gray-600 break-words">
+                <strong>Prodi:</strong>{" "}
+                {parsedRule.prodi && parsedRule.prodi.length > 0
+                  ? parsedRule.prodi.map((p) => p.label).join(", ")
+                  : "-"}
+              </p>
+
+              {/* Jenjang */}
+              <p className="text-sm text-gray-600 break-words">
+                <strong>Jenjang:</strong>{" "}
+                {parsedRule.jenjang && parsedRule.jenjang.length > 0
+                  ? parsedRule.jenjang.map((j) => j.label).join(", ")
+                  : "-"}
+              </p>
+
+              {/* Badge Status */}
+              <span
+                className={`absolute bottom-3 right-3 inline-block px-2 py-1 text-xs font-semibold rounded-full ${
+                  item.status === "aktif"
+                    ? "text-green-600 bg-green-100"
+                    : "text-red-600 bg-red-100"
+                }`}
               >
-                <BsThreeDotsVertical size={20} />
-              </button>
+                {item.status === "aktif" ? "Aktif" : "Nonaktif"}
+              </span>
 
-              {/* Dropdown Menu */}
-              {dropdownOpen === item.uuid && (
-                <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg border rounded-md overflow-hidden z-50">
-                  <ul className="py-1">
-                    <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                      Non-Aktif
-                    </li>
-                    <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                      Template Soal
-                    </li>
-                    <Link to={`/admin/bank-soal/edit/${item.uuid}`}>
+              {/* Dropdown */}
+              <div
+                className="absolute top-3 right-3"
+                ref={(el) => (dropdownRefs.current[item.uuid] = el)}
+              >
+                <button
+                  onClick={() => toggleDropdown(item.uuid)}
+                  className="p-2 rounded-full hover:bg-gray-200"
+                >
+                  <BsThreeDotsVertical size={20} />
+                </button>
+
+                {dropdownOpen === item.uuid && (
+                  <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg border rounded-md overflow-hidden z-50">
+                    <ul className="py-1">
                       <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                        Edit
+                        Non-Aktif
                       </li>
-                    </Link>
-                    <li
-                      className="px-4 py-2 hover:bg-red-100 text-red-600 cursor-pointer"
-                      onClick={() => handleConfirmDelete(item.uuid)}
-                    >
-                      Hapus
-                    </li>
-                  </ul>
-                </div>
-              )}
+                      <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                        Template Soal
+                      </li>
+                      <Link to={`/admin/bank-soal/edit/${item.uuid}`}>
+                        <li
+                          className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                          onClick={(event) => event.stopPropagation()}
+                        >
+                          Edit
+                        </li>
+                      </Link>
+                      <li
+                        className="px-4 py-2 hover:bg-red-100 text-red-600 cursor-pointer"
+                        onClick={(event) => handleConfirmDelete(item.uuid, event)}
+                      >
+                        Hapus
+                      </li>
+                    </ul>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Modal Konfirmasi Hapus */}

@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
+import Input from "../../components/Input";
+import Button from "../../components/Button";
 
 const BankSoalEdit = () => {
   const { uuid } = useParams();
@@ -10,7 +12,8 @@ const BankSoalEdit = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get(`/api/BankSoal/${uuid}`)
+    axios
+      .get(`/api/BankSoal/${uuid}`)
       .then((response) => {
         setJudul(response.data.judul);
         setRule(response.data.rule);
@@ -28,9 +31,9 @@ const BankSoalEdit = () => {
 
     try {
       await axios.put("/api/BankSoal", {
-        id: uuid,  // API membutuhkan ID dalam body request
+        id: uuid, // API membutuhkan ID dalam body request
         judul: judul,
-        rule: rule
+        rule: rule,
       });
 
       alert("Data berhasil diperbarui!");
@@ -46,45 +49,48 @@ const BankSoalEdit = () => {
   return (
     <>
       <nav className="text-gray-600 text-sm mb-4">
-        <Link to="/admin/bank-soal" className="font-bold text-purple-700 hover:underline">Bank Soal</Link> /
-        <span className="text-gray-500"> Edit Data</span>
+        <Link
+          to="/admin/bank-soal"
+          className="font-bold text-purple-700 hover:underline"
+        >
+          Bank Soal
+        </Link>{" "}
+        /<span className="text-gray-500"> Edit Data</span>
       </nav>
 
-      <form onSubmit={handleUpdate} className="bg-white p-5 rounded-lg shadow-md border">
+      <form
+        onSubmit={handleUpdate}
+        className="bg-white p-5 rounded-lg shadow-md border"
+      >
         <div className="mb-4">
-          <label className="block font-semibold mb-3">Judul Soal</label>
-          <input
+          <Input
+            label="Judul Soal"
             type="text"
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 bg-gray-100"
             placeholder="Masukkan judul soal"
             value={judul}
             onChange={(e) => setJudul(e.target.value)}
-            required
+            required={true}
           />
         </div>
         <div className="mb-4">
-          <label className="block font-semibold mb-3">Rule Soal</label>
-          <input
+          <Input
+            label="Rule Soal"
             type="text"
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 bg-gray-100"
             placeholder="Masukkan rule soal"
             value={rule}
             onChange={(e) => setRule(e.target.value)}
-            required
           />
         </div>
 
         <div className="flex justify-end gap-3">
-          <Link to="/admin/bank-soal" className="bg-gray-400 text-white px-4 py-2 rounded-md hover:bg-gray-500">
-            Batal
-          </Link>
-          <button
-            type="submit"
-            className={`bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
-            disabled={loading}
+          <Link
+            to="/admin/bank-soal"
           >
-            {loading ? "Menyimpan..." : "Update"}
-          </button>
+            <Button variant="secondary">Batal</Button>
+          </Link>
+          <Button loading={loading} type="submit">
+            Update
+          </Button>
         </div>
       </form>
     </>
