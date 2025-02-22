@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { BsThreeDotsVertical } from "react-icons/bs";
+import { CiCalendarDate, CiViewList } from "react-icons/ci";
 import { FaPlus } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import Button from "../../components/Button";
@@ -106,9 +107,19 @@ const BankSoal = () => {
               }`}
             >
               {/* Judul Bank Soal */}
-              <h3 className="text-lg font-semibold break-words mb-4">
+              <h3 className="text-lg font-semibold break-words mb-3">
                 {item.judul}
               </h3>
+
+              {/* Tanggal & Jadwal */}
+              <div className="flex items-center text-purple-400">
+                <CiCalendarDate size={16} className="mr-2" />
+                <span className="text-sm">01 Jan 2025</span>
+              </div>
+              <div className="flex items-center text-purple-400 mb-4">
+                <CiViewList size={16} className="mr-2" />
+                <span className="text-sm">10 Jadwal Terhubung</span>
+              </div>
 
               {/* Fakultas */}
               <p className="text-sm text-gray-600 break-words">
@@ -158,7 +169,7 @@ const BankSoal = () => {
                 </button>
 
                 {dropdownOpen === item.uuid && (
-                  <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg border rounded-md overflow-hidden z-50">
+                  <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg border border-gray-200 rounded-md overflow-hidden z-50">
                     <ul className="py-1">
                       <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
                         Non-Aktif
@@ -176,7 +187,9 @@ const BankSoal = () => {
                       </Link>
                       <li
                         className="px-4 py-2 hover:bg-red-100 text-red-600 cursor-pointer"
-                        onClick={(event) => handleConfirmDelete(item.uuid, event)}
+                        onClick={(event) =>
+                          handleConfirmDelete(item.uuid, event)
+                        }
                       >
                         Hapus
                       </li>
