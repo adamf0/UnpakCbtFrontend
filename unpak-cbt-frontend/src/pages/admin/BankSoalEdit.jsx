@@ -60,7 +60,7 @@ const BankSoalEdit = () => {
 
       <form
         onSubmit={handleUpdate}
-        className="bg-white p-5 rounded-lg shadow-md border"
+        className="bg-white p-5 rounded-lg shadow-md"
       >
         <div className="mb-4">
           <Input

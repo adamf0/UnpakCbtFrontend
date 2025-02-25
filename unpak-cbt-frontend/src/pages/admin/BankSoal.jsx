@@ -5,6 +5,7 @@ import { CiCalendarDate, CiViewList } from "react-icons/ci";
 import { FaPlus } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import Button from "../../components/Button";
+import Modal from "../../components/Modal";
 
 const BankSoal = () => {
   const [data, setData] = useState([]);
@@ -12,6 +13,7 @@ const BankSoal = () => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [selectedUUID, setSelectedUUID] = useState(null);
   const dropdownRefs = useRef({}); // Gunakan objek untuk referensi banyak dropdown
+  const [selectedTitle, setSelectedTitle] = useState("");
 
   useEffect(() => {
     axios
@@ -47,9 +49,10 @@ const BankSoal = () => {
     setDropdownOpen(dropdownOpen === uuid ? null : uuid);
   };
 
-  const handleConfirmDelete = (uuid, event) => {
+  const handleConfirmDelete = (uuid, judul, event) => {
     event.stopPropagation(); // Mencegah klik bocor
     setSelectedUUID(uuid);
+    setSelectedTitle(judul);
     setShowConfirm(true);
     setDropdownOpen(null);
   };
@@ -103,7 +106,7 @@ const BankSoal = () => {
             <div
               key={item.uuid}
               className={`relative bg-white shadow-md rounded-lg p-4 border-l-4 ${
-                item.status === "aktif" ? "border-green-500" : "border-red-500"
+                item.status === "active" ? "border-green-500" : "border-red-500"
               }`}
             >
               {/* Judul Bank Soal */}
@@ -118,7 +121,9 @@ const BankSoal = () => {
               </div>
               <div className="flex items-center text-purple-400 mb-4">
                 <CiViewList size={16} className="mr-2" />
-                <span className="text-sm">10 Jadwal Terhubung</span>
+                <span className="text-sm">
+                  {item.jadwalTerhubung} Jadwal Terhubung
+                </span>
               </div>
 
               {/* Fakultas */}
@@ -148,12 +153,12 @@ const BankSoal = () => {
               {/* Badge Status */}
               <span
                 className={`absolute bottom-3 right-3 inline-block px-2 py-1 text-xs font-semibold rounded-full ${
-                  item.status === "aktif"
+                  item.status === "active"
                     ? "text-green-600 bg-green-100"
                     : "text-red-600 bg-red-100"
                 }`}
               >
-                {item.status === "aktif" ? "Aktif" : "Nonaktif"}
+                {item.status === "active" ? "Aktif" : "Non-aktif"}
               </span>
 
               {/* Dropdown */}
@@ -174,9 +179,14 @@ const BankSoal = () => {
                       <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
                         Non-Aktif
                       </li>
-                      <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                        Template Soal
-                      </li>
+                      <Link to={`/admin/bank-soal/template/${item.uuid}`}>
+                        <li
+                          className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                          onClick={(event) => event.stopPropagation()}
+                        >
+                          Template Soal
+                        </li>
+                      </Link>
                       <Link to={`/admin/bank-soal/edit/${item.uuid}`}>
                         <li
                           className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
@@ -188,7 +198,7 @@ const BankSoal = () => {
                       <li
                         className="px-4 py-2 hover:bg-red-100 text-red-600 cursor-pointer"
                         onClick={(event) =>
-                          handleConfirmDelete(item.uuid, event)
+                          handleConfirmDelete(item.uuid, item.judul, event)
                         }
                       >
                         Hapus
@@ -202,29 +212,15 @@ const BankSoal = () => {
         })}
       </div>
 
-      {/* Modal Konfirmasi Hapus */}
-      {showConfirm && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-10">
-          <div className="bg-white p-6 rounded-md shadow-lg">
-            <h2 className="text-xl font-bold mb-4">Konfirmasi Hapus</h2>
-            <p className="mb-4">Apakah Anda yakin ingin menghapus data ini?</p>
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setShowConfirm(false)}
-                className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
-              >
-                Batal
-              </button>
-              <button
-                onClick={handleDelete}
-                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-              >
-                Hapus
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <Modal
+        isOpen={showConfirm}
+        title="Konfirmasi Hapus"
+        message={`Apakah Anda yakin ingin menghapus data "${selectedTitle}" ? pastikan kembali jadwal yang terhubung dengan bank soal ini.`}
+        onConfirm={handleDelete}
+        onCancel={() => setShowConfirm(false)}
+        confirmText="Hapus"
+        cancelText="Batal"
+      />
     </>
   );
 };

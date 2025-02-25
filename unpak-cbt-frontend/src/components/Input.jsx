@@ -1,13 +1,23 @@
 import React, { useState } from "react";
 import { HiEye, HiEyeOff } from "react-icons/hi";
 
-const Input = ({ label, type = "text", placeholder, value, onChange, className = "", required = false }) => {
+const Input = ({
+  label,
+  type = "text",
+  placeholder,
+  value,
+  onChange,
+  className = "",
+  required = false,
+}) => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [error, setError] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
 
   const inputType = type === "password" && isPasswordVisible ? "text" : type;
 
   const handleBlur = () => {
+    setIsFocused(false);
     if (required && !value) {
       setError(`${label || "Field"} tidak boleh kosong`);
     } else {
@@ -25,7 +35,9 @@ const Input = ({ label, type = "text", placeholder, value, onChange, className =
           value={value}
           onChange={onChange}
           onBlur={handleBlur}
-          className={`w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 bg-gray-100 ${className}`}
+          className={`w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 bg-gray-100 ${
+            isFocused || value ? "bg-white" : "bg-gray-100"
+          } ${className}`}
         />
         {type === "password" && (
           <button
