@@ -77,7 +77,7 @@ const Select = ({
             isFocused || value.length > 0 ? "bg-white" : "bg-gray-100"
           } ${className}`}
         onClick={toggleDropdown}
-        onBlur={handleBlur} // Validasi hanya dijalankan saat blur
+        // onBlur={handleBlur} // Validasi hanya dijalankan saat blur
         onFocus={() => setIsFocused(true)}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
