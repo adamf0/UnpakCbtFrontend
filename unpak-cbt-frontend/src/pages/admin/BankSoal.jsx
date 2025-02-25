@@ -14,6 +14,7 @@ const BankSoal = () => {
   const [selectedUUID, setSelectedUUID] = useState(null);
   const dropdownRefs = useRef({}); // Gunakan objek untuk referensi banyak dropdown
   const [selectedTitle, setSelectedTitle] = useState("");
+  const [loadingStatus, setLoadingStatus] = useState(null);
 
   useEffect(() => {
     axios
@@ -49,6 +50,37 @@ const BankSoal = () => {
     setDropdownOpen(dropdownOpen === uuid ? null : uuid);
   };
 
+  const handleToggleStatus = async (uuid, currentStatus, event) => {
+    event.stopPropagation(); // Mencegah klik bocor ke parent
+    if (loadingStatus === uuid) return; // Jika sedang loading, cegah klik
+  
+    const newStatus = currentStatus === "active" ? "non-active" : "active";
+  
+    setLoadingStatus(uuid); // Mulai loading untuk item ini
+  
+    try {
+      await axios.put("/api/BankSoal/status", {
+        id: uuid,
+        status: newStatus,
+      });
+  
+      // Perbarui state data setelah perubahan berhasil
+      setData((prevData) =>
+        prevData.map((item) =>
+          item.uuid === uuid ? { ...item, status: newStatus } : item
+        )
+      );
+  
+      // alert(`Status berhasil diubah menjadi ${newStatus}`);
+    } catch (error) {
+      console.error("Error updating status:", error);
+      alert("Terjadi kesalahan saat mengubah status. Coba lagi!");
+    } finally {
+      setLoadingStatus(null); // Reset loading state
+      setDropdownOpen(null); // Tutup dropdown
+    }
+  };
+
   const handleConfirmDelete = (uuid, judul, event) => {
     event.stopPropagation(); // Mencegah klik bocor
     setSelectedUUID(uuid);
@@ -63,7 +95,7 @@ const BankSoal = () => {
       setData((prevData) =>
         prevData.filter((item) => item.uuid !== selectedUUID)
       );
-      alert("Data berhasil dihapus!");
+      // alert("Data berhasil dihapus!");
     } catch (error) {
       console.error("Error deleting data:", error);
       alert("Terjadi kesalahan saat menghapus data.");
@@ -176,8 +208,13 @@ const BankSoal = () => {
                 {dropdownOpen === item.uuid && (
                   <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg border border-gray-200 rounded-md overflow-hidden z-50">
                     <ul className="py-1">
-                      <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                        Non-Aktif
+                      <li
+                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={(event) =>
+                          handleToggleStatus(item.uuid, item.status, event)
+                        }
+                      >
+                        {item.status === "active" ? "Non-Aktifkan" : "Aktifkan"}
                       </li>
                       <Link to={`/admin/bank-soal/template/${item.uuid}`}>
                         <li
