@@ -3,7 +3,7 @@ import axios from "axios";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { CiCalendarDate, CiViewList } from "react-icons/ci";
 import { FaPlus } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Button from "../../components/Button";
 import Modal from "../../components/Modal";
 
@@ -15,6 +15,8 @@ const BankSoal = () => {
   const dropdownRefs = useRef({}); // Gunakan objek untuk referensi banyak dropdown
   const [selectedTitle, setSelectedTitle] = useState("");
   const [loadingStatus, setLoadingStatus] = useState(null);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     axios
@@ -53,24 +55,24 @@ const BankSoal = () => {
   const handleToggleStatus = async (uuid, currentStatus, event) => {
     event.stopPropagation(); // Mencegah klik bocor ke parent
     if (loadingStatus === uuid) return; // Jika sedang loading, cegah klik
-  
+
     const newStatus = currentStatus === "active" ? "non-active" : "active";
-  
+
     setLoadingStatus(uuid); // Mulai loading untuk item ini
-  
+
     try {
       await axios.put("/api/BankSoal/status", {
         id: uuid,
         status: newStatus,
       });
-  
+
       // Perbarui state data setelah perubahan berhasil
       setData((prevData) =>
         prevData.map((item) =>
           item.uuid === uuid ? { ...item, status: newStatus } : item
         )
       );
-  
+
       // alert(`Status berhasil diubah menjadi ${newStatus}`);
     } catch (error) {
       console.error("Error updating status:", error);
@@ -79,6 +81,10 @@ const BankSoal = () => {
       setLoadingStatus(null); // Reset loading state
       setDropdownOpen(null); // Tutup dropdown
     }
+  };
+
+  const handleNavigate = (uuid) => {
+    navigate("/admin/bank-soal/template", { state: { uuid } });
   };
 
   const handleConfirmDelete = (uuid, judul, event) => {
@@ -216,14 +222,15 @@ const BankSoal = () => {
                       >
                         {item.status === "active" ? "Non-Aktifkan" : "Aktifkan"}
                       </li>
-                      <Link to={`/admin/bank-soal/template/${item.uuid}`}>
-                        <li
-                          className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                          onClick={(event) => event.stopPropagation()}
-                        >
-                          Template Soal
-                        </li>
-                      </Link>
+                      <li
+                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          handleNavigate(item.uuid);
+                        }}
+                      >
+                        Template Soal
+                      </li>
                       <Link to={`/admin/bank-soal/edit/${item.uuid}`}>
                         <li
                           className="px-4 py-2 hover:bg-gray-100 cursor-pointer"

@@ -47,7 +47,7 @@ const BankSoalTambah = () => {
       {/* Form Tambah Data */}
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-5 rounded-lg shadow-md border"
+        className="bg-white p-5 rounded-lg shadow-md"
       >
         <div className="mb-4">
           <Input

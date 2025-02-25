@@ -25,7 +25,7 @@ function AppRoutes() {
           <Route path="bank-soal" element={<BankSoal />} />
           <Route path="bank-soal/tambah" element={<BankSoalTambah />} />
           <Route path="bank-soal/edit/:uuid" element={<BankSoalEdit />} />
-          <Route path="bank-soal/template/:uuid" element={<TemplateSoal />} />
+          <Route path="bank-soal/template" element={<TemplateSoal />} />
           <Route path="ujian" element={<UjianAdmin />} />
         </Route>
 

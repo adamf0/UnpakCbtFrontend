@@ -12,14 +12,17 @@ const BankSoalEdit = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    setLoading(true);
     axios
       .get(`/api/BankSoal/${uuid}`)
       .then((response) => {
         setJudul(response.data.judul);
         setRule(response.data.rule);
+        setLoading(false);
       })
       .catch((error) => {
         console.error("Error fetching data:", error);
+        setLoading(false);
         alert("Data tidak ditemukan.");
         navigate("/admin/bank-soal");
       });
