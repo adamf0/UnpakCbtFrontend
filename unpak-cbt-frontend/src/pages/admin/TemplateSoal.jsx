@@ -49,7 +49,7 @@ const TemplateSoal = () => {
         {loading ? (
           <p className="text-gray-500">Loading...</p>
         ) : (
-          <SoalList soalList={soalList} setSoalList={setSoalList} uuid={uuid} />
+          <SoalList soalList={soalList} fetchSoalList={fetchSoalList} uuid={uuid} />
         )}
       </div>
     </>
