@@ -41,7 +41,7 @@ const TemplateSoal = () => {
         /<span className="text-gray-500"> Template Soal</span>
       </nav>
 
-      <div className="grid grid-cols-1 gap-6">
+      <div className="grid grid-cols-1 gap-4">
         {/* Form Tambah Soal */}
         <SoalForm uuid={uuid} fetchSoalList={fetchSoalList} />
 

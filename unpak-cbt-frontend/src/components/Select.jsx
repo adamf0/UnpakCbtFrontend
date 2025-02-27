@@ -72,7 +72,7 @@ const Select = ({
       {/* Button for Select */}
       <button
         type="button"
-        className={`grid w-full cursor-default grid-cols-1 rounded-md py-2 pr-2 pl-3 text-left border border-gray-300 outline-none focus:ring-2 focus:ring-indigo-600 focus:border-indigo-600 
+        className={`grid w-full cursor-default grid-cols-1 rounded-md px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 bg-gray-100
           ${
             isFocused || value.length > 0 ? "bg-white" : "bg-gray-100"
           } ${className}`}
@@ -132,7 +132,7 @@ const Select = ({
             return (
               <li
                 key={index}
-                className="relative cursor-pointer py-2 pr-9 pl-3 select-none text-gray-900 hover:bg-indigo-100 hover:text-indigo-900"
+                className="relative cursor-pointer py-2 pr-9 pl-3 select-none text-gray-900 hover:bg-purple-100 hover:text-purple-900"
                 onClick={() => handleSelect(option.value)}
                 role="option"
               >
