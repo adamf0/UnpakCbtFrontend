@@ -55,7 +55,7 @@ const SoalForm = ({ uuid, fetchSoalList }) => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white p-5 rounded-lg shadow-md mb-4"
+      className="bg-white p-5 rounded-lg shadow-md mb-2"
     >
       {/* Tipe Soal + Tombol Tambah */}
       <div className="flex flex-col md:flex-row items-end gap-4">

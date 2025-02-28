@@ -1,12 +1,27 @@
 import { useState } from "react";
 import axios from "axios";
 import Modal from "../../components/Modal";
+import Button from "../../components/Button";
+import Input from "../../components/Input";
 
-const SoalList = ({ soalList, setSoalList, uuid, fetchSoalList }) => {
+const SoalList = ({ soalList, fetchSoalList }) => {
   const [activeTab, setActiveTab] = useState("TPA");
   const [showConfirm, setShowConfirm] = useState(false);
+  const [showAddJawabanModal, setShowAddJawabanModal] = useState(false);
   const [selectedSoal, setSelectedSoal] = useState(null);
   const [detailSoal, setDetailSoal] = useState(null);
+  const [listJawaban, setListJawaban] = useState([]);
+
+  // State untuk menyimpan input yang dapat diedit
+  const [pertanyaanInput, setPertanyaanInput] = useState(detailSoal?.pertanyaan || "");
+  const [bobotInput, setBobotInput] = useState(detailSoal?.bobot || "");
+  const [gambarInput, setGambarInput] = useState(null);
+  const [gambarPreview, setGambarPreview] = useState(detailSoal?.gambar || null);
+
+  // State untuk input jawaban baru
+  const [jawabanText, setJawabanText] = useState("");
+  const [jawabanImg, setJawabanImg] = useState(null);
+  const [jawabanPreview, setJawabanPreview] = useState(null);
 
   // Mendapatkan tipe soal unik dari data API
   const uniqueTypes = [...new Set(soalList.map((soal) => soal.tipe))];
@@ -19,13 +34,82 @@ const SoalList = ({ soalList, setSoalList, uuid, fetchSoalList }) => {
   // Filter soal berdasarkan tab yang dipilih
   const filteredSoalList = soalList.filter((soal) => soal.tipe === activeTab);
 
+  // Fetch detail soal
   const fetchDetailSoal = async (id) => {
     try {
       const response = await axios.get(`/api/TemplatePertanyaan/${id}`);
       setDetailSoal(response.data);
+      console.log("Detail soal:", response.data);
+
+      // Set input berdasarkan data yang didapat
+      setPertanyaanInput(response.data.pertanyaan || "");
+      setBobotInput(response.data.bobot || "");
+      setGambarPreview(response.data.gambar || null);
+      setGambarInput(null);
     } catch (error) {
       console.error("Error fetching detail soal:", error);
       setDetailSoal(null);
+    }
+  };
+
+  // Fetch daftar jawaban
+  const fetchListJawaban = async (id) => {
+    try {
+      const response = await axios.get("/api/TemplateJawaban");
+
+      // Filter jawaban hanya yang memiliki uuidTemplateSoal sama dengan id
+      const filteredJawaban = response.data.filter(
+        (jawaban) => jawaban.uuidTemplateSoal === id
+      );
+
+      setListJawaban(filteredJawaban);
+      console.log("Filtered jawaban:", filteredJawaban);
+    } catch (error) {
+      console.error("Error fetching jawaban:", error);
+      setListJawaban(null);
+    }
+  };
+
+  // Fungsi untuk menampilkan modal tambah jawaban
+  const handleShowAddJawabanModal = () => {
+    setShowAddJawabanModal(true);
+    setJawabanText("");
+    setJawabanImg(null);
+    setJawabanPreview(null);
+  };
+
+  // Fungsi untuk menangani perubahan input gambar jawaban
+  const handleJawabanImgChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setJawabanImg(file);
+      setJawabanPreview(URL.createObjectURL(file));
+    }
+  };
+
+  // Fungsi untuk menambahkan jawaban baru
+  const handleAddJawaban = async () => {
+    if (!detailSoal) return;
+
+    try {
+      const formData = new FormData();
+      formData.append("idTemplateSoal", detailSoal.uuid);
+      formData.append("jawabanText", jawabanText);
+
+      if (jawabanImg) {
+        formData.append("jawabanImg", jawabanImg);
+      }
+
+      await axios.post("/api/TemplateJawaban", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      alert("Jawaban berhasil ditambahkan!");
+      setShowAddJawabanModal(false);
+      fetchListJawaban(detailSoal.uuid);
+    } catch (error) {
+      console.error("Error adding jawaban:", error);
+      alert("Gagal menambahkan jawaban. Silakan coba lagi.");
     }
   };
 
@@ -47,6 +131,45 @@ const SoalList = ({ soalList, setSoalList, uuid, fetchSoalList }) => {
     } catch (error) {
       console.error("Error deleting soal:", error);
       alert("Gagal menghapus soal. Silakan coba lagi.");
+    }
+  };
+
+  // Fungsi untuk menangani perubahan input gambar
+  const handleGambarChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setGambarInput(file);
+      setGambarPreview(URL.createObjectURL(file)); // Preview gambar sebelum diunggah
+    }
+  };
+
+  // Fungsi untuk menyimpan data ke API
+  const handleSave = async () => {
+    if (!detailSoal) return;
+
+    try {
+      const formData = new FormData();
+      formData.append("id", detailSoal.uuid); // ID dari soal
+      formData.append("idBankSoal", detailSoal.uuidBankSoal);
+      formData.append("tipe", detailSoal.tipe);
+      formData.append("pertanyaan", pertanyaanInput);
+      formData.append("bobot", bobotInput);
+      formData.append("jawaban", detailSoal.uuidJawabanBenar || ""); // Pastikan jawaban tetap dikirim
+      formData.append("state", detailSoal.state);
+
+      if (gambarInput) {
+        formData.append("gambar", gambarInput);
+      }
+
+      await axios.put(`/api/TemplatePertanyaan/${detailSoal.uuid}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      alert("Data berhasil disimpan!");
+      fetchSoalList();
+    } catch (error) {
+      console.error("Error saving soal:", error);
+      alert("Gagal menyimpan data. Silakan coba lagi.");
     }
   };
 
@@ -73,29 +196,41 @@ const SoalList = ({ soalList, setSoalList, uuid, fetchSoalList }) => {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Detail Soal (Lebih Besar di Desktop) */}
-        <div className="md:col-span-2 bg-gray-100 p-4 rounded-lg shadow-sm min-h-[200px] flex flex-col justify-center">
+        <div className="md:col-span-2 bg-gray-100 p-4 rounded-lg shadow-sm min-h-[400px]">
           {detailSoal ? (
             <>
-              <h3 className="text-md font-semibold text-purple-600">
-                Detail Soal
-              </h3>
-              <p className="text-gray-700 mt-2">
-                <strong>Pertanyaan:</strong> {detailSoal.pertanyaan || "-"}
-              </p>
-              {detailSoal.gambar && (
+              <Input
+                label="Pertanyaan"
+                type="text"
+                placeholder="Masukkan pertanyaan"
+                value={pertanyaanInput}
+                onChange={(e) => setPertanyaanInput(e.target.value)}
+              />
+
+              <Input
+                label="Bobot"
+                type="text"
+                placeholder="Masukkan bobot"
+                value={bobotInput}
+                onChange={(e) => setBobotInput(e.target.value)}
+              />
+
+              <Input
+                label="Gambar"
+                type="file"
+                placeholder="Upload file gambar"
+                onChange={handleGambarChange}
+                accept="image/*"
+              />
+
+              {gambarPreview && (
                 <img
-                  src={detailSoal.gambar}
-                  alt="Gambar Soal"
+                  src={gambarPreview}
+                  alt="Preview"
                   className="w-full h-32 object-cover rounded-md mt-2"
                 />
               )}
-              <p className="text-gray-700 mt-2">
-                <strong>Jawaban Benar:</strong> {detailSoal.jawabanBenar || "-"}
-              </p>
-              <p className="text-gray-700">
-                <strong>Bobot:</strong>{" "}
-                {detailSoal.bobot !== null ? detailSoal.bobot : "-"}
-              </p>
+
               <span
                 className={`inline-block mt-2 px-2 py-1 text-xs font-semibold rounded-full ${
                   detailSoal.state === "init"
@@ -105,18 +240,51 @@ const SoalList = ({ soalList, setSoalList, uuid, fetchSoalList }) => {
               >
                 {detailSoal.state}
               </span>
+
+              <h3 className="mt-4 font-semibold">Daftar Jawaban</h3>
+              {listJawaban.length > 0 ? (
+                <ul className="mt-2 space-y-2">
+                  {listJawaban.map((jawaban) => (
+                    <li
+                      key={jawaban.uuid}
+                      className="p-2 border rounded-lg bg-gray-50"
+                    >
+                      <p className="text-gray-800">{jawaban.jawabanText}</p>
+                      {jawaban.jawabanImg && (
+                        <img
+                          src={jawaban.jawabanImg}
+                          alt="Jawaban"
+                          className="w-16 h-16 object-cover rounded-md mt-2"
+                        />
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-gray-500 mt-2">Belum ada jawaban.</p>
+              )}
+
+              <Button
+                onClick={handleShowAddJawabanModal}
+                className="mt-4"
+                variant="primary"
+              >
+                Tambah Jawaban
+              </Button>
             </>
           ) : (
-            <p className="text-gray-500 text-center">
-              Silahkan pilih nomor soal terlebih dahulu.
-            </p>
+            <div className="flex h-full items-center justify-center flex-col">
+              <p className="text-gray-500 text-center">
+                Silahkan pilih nomor soal terlebih dahulu.
+              </p>
+            </div>
           )}
         </div>
 
         {/* Grid Nomor Soal + Tombol */}
         <div className="flex flex-col justify-between">
           {/* Grid Nomor Soal */}
-          <div className="grid grid-cols-5 gap-4 p-4 bg-gray-100 rounded-lg shadow-sm h-auto md:h-full">
+          <div className="grid grid-cols-5 gap-4 p-4 bg-gray-100 rounded-lg shadow-sm h-auto">
             {filteredSoalList.length === 0 ? (
               <p className="text-gray-500 col-span-full text-center">
                 Belum ada soal untuk kategori ini.
@@ -125,8 +293,11 @@ const SoalList = ({ soalList, setSoalList, uuid, fetchSoalList }) => {
               filteredSoalList.map((soal, index) => (
                 <div
                   key={soal.uuid}
-                  onClick={() => fetchDetailSoal(soal.uuid)}
-                  className="relative border border-gray-200 rounded-lg shadow-sm bg-gray-50 flex items-center justify-center text-lg font-bold text-gray-700 cursor-pointer hover:bg-purple-200 transition aspect-square"
+                  onClick={() => {
+                    fetchDetailSoal(soal.uuid);
+                    fetchListJawaban(soal.uuid);
+                  }}
+                  className="relative border border-gray-200 rounded-lg shadow-sm bg-gray-50 flex items-center justify-center text-lg font-bold text-gray-700 cursor-pointer hover:bg-purple-200 hover:border-purple-600 transition aspect-square"
                 >
                   {/* Tombol Hapus di Pojok Kanan Atas */}
                   <button
@@ -148,21 +319,53 @@ const SoalList = ({ soalList, setSoalList, uuid, fetchSoalList }) => {
 
           {/* Tombol Simpan & Simpan Permanen */}
           <div className="mt-4 flex space-x-2">
-            <button
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition"
-              onClick={() => console.log("Simpan data sementara")}
-            >
+            <Button onClick={handleSave} className="w-full" variant="success">
               Simpan
-            </button>
-            <button
-              className="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md transition"
-              onClick={() => console.log("Simpan data secara permanen")}
+            </Button>
+            <Button
+              onClick={() => console.log("Simpan data semua")}
+              className="w-full"
+              variant="primary"
             >
-              Simpan Permanen
-            </button>
+              Selesai
+            </Button>
           </div>
         </div>
       </div>
+
+      {/* Modal Tambah Jawaban */}
+      <Modal
+        isOpen={showAddJawabanModal}
+        title="Tambah Jawaban"
+        onConfirm={handleAddJawaban}
+        onCancel={() => setShowAddJawabanModal(false)}
+        confirmText="Tambah"
+        cancelText="Batal"
+      >
+        <Input
+          label="Jawaban Text"
+          type="text"
+          placeholder="Masukkan jawaban"
+          value={jawabanText}
+          onChange={(e) => setJawabanText(e.target.value)}
+        />
+
+        <Input
+          label="Gambar Jawaban"
+          type="file"
+          placeholder="Upload gambar jawaban"
+          onChange={handleJawabanImgChange}
+          accept="image/*"
+        />
+
+        {jawabanPreview && (
+          <img
+            src={jawabanPreview}
+            alt="Preview"
+            className="w-full h-32 object-cover rounded-md mt-2"
+          />
+        )}
+      </Modal>
 
       {/* Modal Konfirmasi Hapus */}
       <Modal
