@@ -13,6 +13,12 @@ export default defineConfig({
         secure: false, // Jika API menggunakan HTTPS self-signed
         rewrite: (path) => path.replace(/^\/api/, '/api'), 
       },
+      '/uploads': {
+        target: 'https://seb.unpak.ac.id/api/uploads',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/uploads/, ''), // Menghapus prefix '/uploads'
+      },
     },
   },
 })

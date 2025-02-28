@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import Modal from "../../components/Modal";
 import Button from "../../components/Button";
@@ -11,12 +11,17 @@ const SoalList = ({ soalList, fetchSoalList }) => {
   const [selectedSoal, setSelectedSoal] = useState(null);
   const [detailSoal, setDetailSoal] = useState(null);
   const [listJawaban, setListJawaban] = useState([]);
+  const [selectedJawabanBenar, setSelectedJawabanBenar] = useState(null);
 
   // State untuk menyimpan input yang dapat diedit
-  const [pertanyaanInput, setPertanyaanInput] = useState(detailSoal?.pertanyaan || "");
+  const [pertanyaanInput, setPertanyaanInput] = useState(
+    detailSoal?.pertanyaan || ""
+  );
   const [bobotInput, setBobotInput] = useState(detailSoal?.bobot || "");
   const [gambarInput, setGambarInput] = useState(null);
-  const [gambarPreview, setGambarPreview] = useState(detailSoal?.gambar || null);
+  const [gambarPreview, setGambarPreview] = useState(
+    detailSoal?.gambar || null
+  );
 
   // State untuk input jawaban baru
   const [jawabanText, setJawabanText] = useState("");
@@ -44,7 +49,7 @@ const SoalList = ({ soalList, fetchSoalList }) => {
       // Set input berdasarkan data yang didapat
       setPertanyaanInput(response.data.pertanyaan || "");
       setBobotInput(response.data.bobot || "");
-      setGambarPreview(response.data.gambar || null);
+      setGambarPreview(response.data.gambar ? `/uploads/${response.data.gambar}` : null);
       setGambarInput(null);
     } catch (error) {
       console.error("Error fetching detail soal:", error);
@@ -64,9 +69,33 @@ const SoalList = ({ soalList, fetchSoalList }) => {
 
       setListJawaban(filteredJawaban);
       console.log("Filtered jawaban:", filteredJawaban);
+
+      // Set jawaban benar jika sudah ada di detailSoal
+      if (detailSoal && detailSoal.uuidJawabanBenar) {
+        setSelectedJawabanBenar(detailSoal.uuidJawabanBenar);
+      }
     } catch (error) {
       console.error("Error fetching jawaban:", error);
-      setListJawaban(null);
+      setListJawaban([]);
+    }
+  };
+
+  // Fungsi untuk menyimpan jawaban benar ke state
+  const handleSelectCorrectAnswer = (jawabanId) => {
+    setSelectedJawabanBenar(jawabanId);
+  };
+
+  // Fungsi untuk menghapus jawaban
+  const handleDeleteJawaban = async (jawabanId) => {
+    if (!jawabanId) return;
+
+    try {
+      await axios.delete(`/api/TemplateJawaban/${jawabanId}`);
+      alert("Jawaban berhasil dihapus!");
+      fetchListJawaban(detailSoal.uuid);
+    } catch (error) {
+      console.error("Error deleting jawaban:", error);
+      alert("Gagal menghapus jawaban.");
     }
   };
 
@@ -149,19 +178,19 @@ const SoalList = ({ soalList, fetchSoalList }) => {
 
     try {
       const formData = new FormData();
-      formData.append("id", detailSoal.uuid); // ID dari soal
+      formData.append("id", detailSoal.uuid);
       formData.append("idBankSoal", detailSoal.uuidBankSoal);
       formData.append("tipe", detailSoal.tipe);
       formData.append("pertanyaan", pertanyaanInput);
       formData.append("bobot", bobotInput);
-      formData.append("jawaban", detailSoal.uuidJawabanBenar || ""); // Pastikan jawaban tetap dikirim
-      formData.append("state", detailSoal.state);
+      formData.append("jawaban", selectedJawabanBenar);
+      formData.append("state", "");
 
       if (gambarInput) {
         formData.append("gambar", gambarInput);
       }
 
-      await axios.put(`/api/TemplatePertanyaan/${detailSoal.uuid}`, formData, {
+      await axios.put("/api/TemplatePertanyaan", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -172,6 +201,12 @@ const SoalList = ({ soalList, fetchSoalList }) => {
       alert("Gagal menyimpan data. Silakan coba lagi.");
     }
   };
+
+  useEffect(() => {
+    if (detailSoal?.uuidJawabanBenar) {
+      setSelectedJawabanBenar(detailSoal.uuidJawabanBenar);
+    }
+  }, [detailSoal]);
 
   return (
     <div className="bg-white p-4 rounded-lg shadow-md">
@@ -196,7 +231,7 @@ const SoalList = ({ soalList, fetchSoalList }) => {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Detail Soal (Lebih Besar di Desktop) */}
-        <div className="md:col-span-2 bg-gray-100 p-4 rounded-lg shadow-sm min-h-[400px]">
+        <div className="md:col-span-2 border border-gray-200 p-4 rounded-lg shadow-sm min-h-[400px]">
           {detailSoal ? (
             <>
               <Input
@@ -205,6 +240,7 @@ const SoalList = ({ soalList, fetchSoalList }) => {
                 placeholder="Masukkan pertanyaan"
                 value={pertanyaanInput}
                 onChange={(e) => setPertanyaanInput(e.target.value)}
+                className="mb-3"
               />
 
               <Input
@@ -213,21 +249,23 @@ const SoalList = ({ soalList, fetchSoalList }) => {
                 placeholder="Masukkan bobot"
                 value={bobotInput}
                 onChange={(e) => setBobotInput(e.target.value)}
+                className="mb-3"
               />
 
               <Input
-                label="Gambar"
+                label="Pertanyaan Gambar"
                 type="file"
                 placeholder="Upload file gambar"
                 onChange={handleGambarChange}
                 accept="image/*"
+                className="mb-3"
               />
 
               {gambarPreview && (
                 <img
                   src={gambarPreview}
                   alt="Preview"
-                  className="w-full h-32 object-cover rounded-md mt-2"
+                  className="w-50 rounded-md mb-3"
                 />
               )}
 
@@ -247,16 +285,34 @@ const SoalList = ({ soalList, fetchSoalList }) => {
                   {listJawaban.map((jawaban) => (
                     <li
                       key={jawaban.uuid}
-                      className="p-2 border rounded-lg bg-gray-50"
+                      className="p-2 border rounded-lg bg-gray-50 flex items-center justify-between"
                     >
-                      <p className="text-gray-800">{jawaban.jawabanText}</p>
-                      {jawaban.jawabanImg && (
-                        <img
-                          src={jawaban.jawabanImg}
-                          alt="Jawaban"
-                          className="w-16 h-16 object-cover rounded-md mt-2"
+                      <div className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={selectedJawabanBenar === jawaban.uuid}
+                          onChange={() =>
+                            handleSelectCorrectAnswer(jawaban.uuid)
+                          }
+                          className="mr-2"
                         />
-                      )}
+                        <p className="text-gray-800">{jawaban.jawabanText}</p>
+                        {jawaban.jawabanImg && (
+                          <img
+                            src={`/uploads/${jawaban.jawabanImg}`}
+                            alt="Jawaban"
+                            className="w-16 h-16 object-cover rounded-md ml-2"
+                          />
+                        )}
+                      </div>
+
+                      {/* Tombol Hapus */}
+                      <button
+                        onClick={() => handleDeleteJawaban(jawaban.uuid)}
+                        className="bg-red-500 text-white px-2 py-1 text-xs rounded-md hover:bg-red-700 transition"
+                      >
+                        Hapus
+                      </button>
                     </li>
                   ))}
                 </ul>
@@ -284,7 +340,7 @@ const SoalList = ({ soalList, fetchSoalList }) => {
         {/* Grid Nomor Soal + Tombol */}
         <div className="flex flex-col justify-between">
           {/* Grid Nomor Soal */}
-          <div className="grid grid-cols-5 gap-4 p-4 bg-gray-100 rounded-lg shadow-sm h-auto">
+          <div className="grid grid-cols-5 gap-4 border border-gray-200 p-4 rounded-lg shadow-sm h-auto">
             {filteredSoalList.length === 0 ? (
               <p className="text-gray-500 col-span-full text-center">
                 Belum ada soal untuk kategori ini.
@@ -305,7 +361,7 @@ const SoalList = ({ soalList, fetchSoalList }) => {
                       e.stopPropagation(); // Agar tidak memicu klik detail
                       handleConfirmDelete(soal);
                     }}
-                    className="absolute -top-2 -right-2 bg-red-600 hover:bg-red-700 text-white px-2 py-1 text-xs rounded-md transition"
+                    className="absolute -top-2 -right-2 bg-red-300 hover:bg-red-600 text-white px-2 py-1 text-xs rounded-md transition"
                   >
                     X
                   </button>
@@ -341,6 +397,7 @@ const SoalList = ({ soalList, fetchSoalList }) => {
         onCancel={() => setShowAddJawabanModal(false)}
         confirmText="Tambah"
         cancelText="Batal"
+        variant="primary"
       >
         <Input
           label="Jawaban Text"
@@ -348,21 +405,23 @@ const SoalList = ({ soalList, fetchSoalList }) => {
           placeholder="Masukkan jawaban"
           value={jawabanText}
           onChange={(e) => setJawabanText(e.target.value)}
+          className="mb-3"
         />
 
         <Input
-          label="Gambar Jawaban"
+          label="Jawaban Gambar"
           type="file"
           placeholder="Upload gambar jawaban"
           onChange={handleJawabanImgChange}
           accept="image/*"
+          className="mb-3"
         />
 
         {jawabanPreview && (
           <img
             src={jawabanPreview}
             alt="Preview"
-            className="w-full h-32 object-cover rounded-md mt-2"
+            className="w-full rounded-md mb-3"
           />
         )}
       </Modal>
