@@ -3,6 +3,8 @@ import axios from "axios";
 import Modal from "../../components/Modal";
 import Button from "../../components/Button";
 import Input from "../../components/Input";
+import Textarea from "../../components/Textarea";
+import { FaPlus } from "react-icons/fa";
 
 const SoalList = ({ soalList, fetchSoalList }) => {
   const [activeTab, setActiveTab] = useState("TPA");
@@ -49,7 +51,9 @@ const SoalList = ({ soalList, fetchSoalList }) => {
       // Set input berdasarkan data yang didapat
       setPertanyaanInput(response.data.pertanyaan || "");
       setBobotInput(response.data.bobot || "");
-      setGambarPreview(response.data.gambar ? `/uploads/${response.data.gambar}` : null);
+      setGambarPreview(
+        response.data.gambar ? `/uploads/${response.data.gambar}` : null
+      );
       setGambarInput(null);
     } catch (error) {
       console.error("Error fetching detail soal:", error);
@@ -234,9 +238,8 @@ const SoalList = ({ soalList, fetchSoalList }) => {
         <div className="md:col-span-2 border border-gray-200 p-4 rounded-lg shadow-sm min-h-[400px]">
           {detailSoal ? (
             <>
-              <Input
+              <Textarea
                 label="Pertanyaan"
-                type="text"
                 placeholder="Masukkan pertanyaan"
                 value={pertanyaanInput}
                 onChange={(e) => setPertanyaanInput(e.target.value)}
@@ -269,7 +272,7 @@ const SoalList = ({ soalList, fetchSoalList }) => {
                 />
               )}
 
-              <span
+              {/* <span
                 className={`inline-block mt-2 px-2 py-1 text-xs font-semibold rounded-full ${
                   detailSoal.state === "init"
                     ? "bg-yellow-100 text-yellow-700"
@@ -277,15 +280,30 @@ const SoalList = ({ soalList, fetchSoalList }) => {
                 }`}
               >
                 {detailSoal.state}
-              </span>
+              </span> */}
 
-              <h3 className="mt-4 font-semibold">Daftar Jawaban</h3>
+              <hr className="border border-gray-200" />
+
+              <div className="flex justify-between align-center my-4">
+                <h3 className="font-semibold">Daftar Jawaban</h3>
+                <Button
+                  onClick={handleShowAddJawabanModal}
+                  className="px-2 py-1 text-xs font-medium"
+                  variant="primary"
+                >
+                  <div className="flex items-center">
+                    <FaPlus size={12} className="mr-2" />
+                    Tambah Jawaban
+                  </div>
+                </Button>
+              </div>
+
               {listJawaban.length > 0 ? (
                 <ul className="mt-2 space-y-2">
                   {listJawaban.map((jawaban) => (
                     <li
                       key={jawaban.uuid}
-                      className="p-2 border rounded-lg bg-gray-50 flex items-center justify-between"
+                      className="p-2 px-4 border border-gray-200 rounded-lg bg-gray-50 flex items-center justify-between"
                     >
                       <div className="flex items-center">
                         <input
@@ -294,7 +312,7 @@ const SoalList = ({ soalList, fetchSoalList }) => {
                           onChange={() =>
                             handleSelectCorrectAnswer(jawaban.uuid)
                           }
-                          className="mr-2"
+                          className="mr-2 w-6 h-6 appearance-none border-2 border-gray-300 rounded-md checked:bg-purple-600 checked:border-purple-600 checked:ring-2 checked:ring-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
                         />
                         <p className="text-gray-800">{jawaban.jawabanText}</p>
                         {jawaban.jawabanImg && (
@@ -309,9 +327,9 @@ const SoalList = ({ soalList, fetchSoalList }) => {
                       {/* Tombol Hapus */}
                       <button
                         onClick={() => handleDeleteJawaban(jawaban.uuid)}
-                        className="bg-red-500 text-white px-2 py-1 text-xs rounded-md hover:bg-red-700 transition"
+                        className="bg-red-300 text-white px-2 py-1 text-xs rounded-md hover:bg-red-600 transition"
                       >
-                        Hapus
+                        X
                       </button>
                     </li>
                   ))}
@@ -319,14 +337,6 @@ const SoalList = ({ soalList, fetchSoalList }) => {
               ) : (
                 <p className="text-gray-500 mt-2">Belum ada jawaban.</p>
               )}
-
-              <Button
-                onClick={handleShowAddJawabanModal}
-                className="mt-4"
-                variant="primary"
-              >
-                Tambah Jawaban
-              </Button>
             </>
           ) : (
             <div className="flex h-full items-center justify-center flex-col">
@@ -430,9 +440,9 @@ const SoalList = ({ soalList, fetchSoalList }) => {
       <Modal
         isOpen={showConfirm}
         title="Konfirmasi Hapus"
-        message={`Apakah Anda yakin ingin menghapus soal "${
-          selectedSoal?.pertanyaan || "Soal ini"
-        }"?`}
+        message={`Apakah Anda yakin ingin menghapus soal nomor ${
+          filteredSoalList.findIndex((soal) => soal.uuid === selectedSoal?.uuid) + 1
+        }? Pastikan kembali data ujian tidak masuk masa "proses ujian"`}
         onConfirm={handleDelete}
         onCancel={() => setShowConfirm(false)}
         confirmText="Hapus"
