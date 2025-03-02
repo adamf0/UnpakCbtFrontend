@@ -15,6 +15,12 @@ const SoalList = ({ soalList, fetchSoalList }) => {
   const [listJawaban, setListJawaban] = useState([]);
   const [selectedJawabanBenar, setSelectedJawabanBenar] = useState(null);
 
+  const [showConfirmDeleteJawaban, setShowConfirmDeleteJawaban] =
+    useState(false);
+  const [selectedJawaban, setSelectedJawaban] = useState(null);
+
+  const [loading, setLoading] = useState(false);
+
   // State untuk menyimpan input yang dapat diedit
   const [pertanyaanInput, setPertanyaanInput] = useState(
     detailSoal?.pertanyaan || ""
@@ -89,14 +95,21 @@ const SoalList = ({ soalList, fetchSoalList }) => {
     setSelectedJawabanBenar(jawabanId);
   };
 
+  const handleConfirmDeleteJawaban = (jawaban) => {
+    setSelectedJawaban(jawaban);
+    setShowConfirmDeleteJawaban(true);
+  };
+
   // Fungsi untuk menghapus jawaban
-  const handleDeleteJawaban = async (jawabanId) => {
-    if (!jawabanId) return;
+  const handleDeleteJawabanConfirmed = async () => {
+    if (!selectedJawaban) return;
 
     try {
-      await axios.delete(`/api/TemplateJawaban/${jawabanId}`);
-      alert("Jawaban berhasil dihapus!");
+      await axios.delete(`/api/TemplateJawaban/${selectedJawaban.uuid}`);
+      // alert("Jawaban berhasil dihapus!");
       fetchListJawaban(detailSoal.uuid);
+      setShowConfirmDeleteJawaban(false);
+      setSelectedJawaban(null);
     } catch (error) {
       console.error("Error deleting jawaban:", error);
       alert("Gagal menghapus jawaban.");
@@ -105,6 +118,7 @@ const SoalList = ({ soalList, fetchSoalList }) => {
 
   // Fungsi untuk menampilkan modal tambah jawaban
   const handleShowAddJawabanModal = () => {
+    setLoading(true);
     setShowAddJawabanModal(true);
     setJawabanText("");
     setJawabanImg(null);
@@ -122,6 +136,7 @@ const SoalList = ({ soalList, fetchSoalList }) => {
 
   // Fungsi untuk menambahkan jawaban baru
   const handleAddJawaban = async () => {
+    setLoading(true);
     if (!detailSoal) return;
 
     try {
@@ -137,12 +152,14 @@ const SoalList = ({ soalList, fetchSoalList }) => {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      alert("Jawaban berhasil ditambahkan!");
+      // alert("Jawaban berhasil ditambahkan!");
       setShowAddJawabanModal(false);
+      setLoading(false);
       fetchListJawaban(detailSoal.uuid);
     } catch (error) {
       console.error("Error adding jawaban:", error);
       alert("Gagal menambahkan jawaban. Silakan coba lagi.");
+      setLoading(false);
     }
   };
 
@@ -246,30 +263,39 @@ const SoalList = ({ soalList, fetchSoalList }) => {
                 className="mb-3"
               />
 
-              <Input
-                label="Bobot"
-                type="text"
-                placeholder="Masukkan bobot"
-                value={bobotInput}
-                onChange={(e) => setBobotInput(e.target.value)}
-                className="mb-3"
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                <div>
+                  <Input
+                    label="Bobot"
+                    type="text"
+                    placeholder="Masukkan bobot"
+                    value={bobotInput}
+                    onChange={(e) => setBobotInput(e.target.value)}
+                    className="mb-3"
+                  />
+                </div>
 
-              <Input
-                label="Pertanyaan Gambar"
-                type="file"
-                placeholder="Upload file gambar"
-                onChange={handleGambarChange}
-                accept="image/*"
-                className="mb-3"
-              />
+                <div>
+                  <Input
+                    label="Pertanyaan Gambar"
+                    type="file"
+                    placeholder="Upload file gambar"
+                    onChange={handleGambarChange}
+                    accept="image/*"
+                    className="mb-3"
+                  />
+                </div>
+              </div>
 
               {gambarPreview && (
-                <img
-                  src={gambarPreview}
-                  alt="Preview"
-                  className="w-50 rounded-md mb-3"
-                />
+                <div className="flex flex-col justify-center md:justify-center gap-3">
+                  <p>Preview Gambar</p>
+                  <img
+                    src={gambarPreview}
+                    alt="Preview"
+                    className="w-full md:w-1/2 lg:w-1/3 rounded-md mb-3"
+                  />
+                </div>
               )}
 
               {/* <span
@@ -287,6 +313,7 @@ const SoalList = ({ soalList, fetchSoalList }) => {
               <div className="flex justify-between align-center my-4">
                 <h3 className="font-semibold">Daftar Jawaban</h3>
                 <Button
+                  loading={loading}
                   onClick={handleShowAddJawabanModal}
                   className="px-2 py-1 text-xs font-medium"
                   variant="primary"
@@ -326,7 +353,7 @@ const SoalList = ({ soalList, fetchSoalList }) => {
 
                       {/* Tombol Hapus */}
                       <button
-                        onClick={() => handleDeleteJawaban(jawaban.uuid)}
+                        onClick={() => handleConfirmDeleteJawaban(jawaban)}
                         className="bg-red-300 text-white px-2 py-1 text-xs rounded-md hover:bg-red-600 transition"
                       >
                         X
@@ -404,7 +431,10 @@ const SoalList = ({ soalList, fetchSoalList }) => {
         isOpen={showAddJawabanModal}
         title="Tambah Jawaban"
         onConfirm={handleAddJawaban}
-        onCancel={() => setShowAddJawabanModal(false)}
+        onCancel={() => {
+          setShowAddJawabanModal(false);
+          setLoading(false);
+        }}
         confirmText="Tambah"
         cancelText="Batal"
         variant="primary"
@@ -441,10 +471,23 @@ const SoalList = ({ soalList, fetchSoalList }) => {
         isOpen={showConfirm}
         title="Konfirmasi Hapus"
         message={`Apakah Anda yakin ingin menghapus soal nomor ${
-          filteredSoalList.findIndex((soal) => soal.uuid === selectedSoal?.uuid) + 1
+          filteredSoalList.findIndex(
+            (soal) => soal.uuid === selectedSoal?.uuid
+          ) + 1
         }? Pastikan kembali data ujian tidak masuk masa "proses ujian"`}
         onConfirm={handleDelete}
         onCancel={() => setShowConfirm(false)}
+        confirmText="Hapus"
+        cancelText="Batal"
+      />
+
+      {/* Modal Konfirmasi Hapus Jawaban */}
+      <Modal
+        isOpen={showConfirmDeleteJawaban}
+        title="Konfirmasi Hapus Jawaban"
+        message={`Apakah Anda yakin ingin menghapus jawaban ini?`}
+        onConfirm={handleDeleteJawabanConfirmed}
+        onCancel={() => setShowConfirmDeleteJawaban(false)}
         confirmText="Hapus"
         cancelText="Batal"
       />

@@ -77,7 +77,7 @@ const Modal = ({
                 type="button"
                 className={`inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-xs sm:ml-3 sm:w-auto ${
                   isPrimary
-                    ? "bg-blue-600 hover:bg-blue-500"
+                    ? "bg-purple-600 hover:bg-purple-500"
                     : "bg-red-600 hover:bg-red-500"
                 }`}
                 onClick={onConfirm}
