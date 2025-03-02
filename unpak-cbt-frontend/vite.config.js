@@ -17,7 +17,13 @@ export default defineConfig({
         target: 'https://seb.unpak.ac.id/api/uploads',
         changeOrigin: true,
         secure: false,
-        rewrite: (path) => path.replace(/^\/uploads/, ''), // Menghapus prefix '/uploads'
+        rewrite: (path) => path.replace(/^\/uploads/, ''),
+      },
+      '/select2': {
+        target: 'https://sipaksi.unpak.ac.id/select2',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/select2/, ''),
       },
     },
   },
