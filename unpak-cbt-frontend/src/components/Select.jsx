@@ -25,6 +25,7 @@ const Select = ({
     const handleClickOutside = (event) => {
       if (selectRef.current && !selectRef.current.contains(event.target)) {
         setIsOpen(false);
+        setIsFocused(false);
       }
     };
 

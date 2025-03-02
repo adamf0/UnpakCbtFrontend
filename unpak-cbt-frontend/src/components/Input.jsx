@@ -34,6 +34,7 @@ const Input = ({
           placeholder={placeholder}
           value={value}
           onChange={onChange}
+          onFocus={() => setIsFocused(true)}
           onBlur={handleBlur}
           className={`w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 bg-gray-100 ${
             isFocused || value ? "bg-white" : "bg-gray-100"
