@@ -8,6 +8,7 @@ import BankSoalTambah from "./pages/admin/BankSoalTambah";
 import BankSoalEdit from "./pages/admin/BankSoalEdit";
 import UjianAdmin from "./pages/admin/UjianAdmin";
 import UjianAdminTambah from "./pages/admin/UjianAdminTambah";
+import UjianAdminEdit from "./pages/admin/UjianAdminEdit";
 import MabaDashboard from "./pages/user/Dashboard";
 import AdminLayout from "./layouts/AdminLayout";
 import MabaLayout from "./layouts/MabaLayout";
@@ -29,6 +30,7 @@ function AppRoutes() {
           <Route path="bank-soal/template" element={<TemplateSoal />} />
           <Route path="ujian" element={<UjianAdmin />} />
           <Route path="ujian/tambah" element={<UjianAdminTambah />} />
+          <Route path="ujian/edit/:uuid" element={<UjianAdminEdit />} />
         </Route>
 
         {/* Maba Routes */}
