@@ -12,7 +12,7 @@ const BankSoal = () => {
   const [dropdownOpen, setDropdownOpen] = useState(null);
   const [showConfirm, setShowConfirm] = useState(false);
   const [selectedUUID, setSelectedUUID] = useState(null);
-  const dropdownRefs = useRef({}); // Gunakan objek untuk referensi banyak dropdown
+  const dropdownRefs = useRef({});
   const [selectedTitle, setSelectedTitle] = useState("");
   const [loadingStatus, setLoadingStatus] = useState(null);
 
