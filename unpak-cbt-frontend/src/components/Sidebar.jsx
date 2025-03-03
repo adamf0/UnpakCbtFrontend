@@ -43,7 +43,7 @@ const Sidebar = ({ isOpen, toggleSidebar, isCollapsed }) => {
               onClick={toggleSidebar} // Tutup sidebar saat di mobile
             >
               <MdBook size={24} />
-              <span className={`${isCollapsed ? "hidden" : "block"}`}>Bank Soal</span>
+              <span className={`${isCollapsed ? "hidden" : "block"}`}><span className="whitespace-nowrap">Bank Soal</span></span>
             </Link>
           </li>
           <li>

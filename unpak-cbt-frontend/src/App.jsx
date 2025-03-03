@@ -1,17 +1,18 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
+// Import Layouts
 import Login from "./pages/Login";
 import AdminDashboard from "./pages/admin/Dashboard";
 import BankSoal from "./pages/admin/BankSoal";
 import BankSoalTambah from "./pages/admin/BankSoalTambah";
 import BankSoalEdit from "./pages/admin/BankSoalEdit";
 import UjianAdmin from "./pages/admin/UjianAdmin";
+import UjianAdminTambah from "./pages/admin/UjianAdminTambah";
+import UjianAdminEdit from "./pages/admin/UjianAdminEdit";
 import MabaDashboard from "./pages/user/Dashboard";
-// import UjianMaba from "./pages/maba/UjianMaba";
-// import NotFound from "./pages/NotFound";
-
-// Import Layouts
 import AdminLayout from "./layouts/AdminLayout";
 import MabaLayout from "./layouts/MabaLayout";
+import TemplateSoal from "./pages/admin/TemplateSoal";
 
 function AppRoutes() {
   return (
@@ -26,7 +27,10 @@ function AppRoutes() {
           <Route path="bank-soal" element={<BankSoal />} />
           <Route path="bank-soal/tambah" element={<BankSoalTambah />} />
           <Route path="bank-soal/edit/:uuid" element={<BankSoalEdit />} />
+          <Route path="bank-soal/template" element={<TemplateSoal />} />
           <Route path="ujian" element={<UjianAdmin />} />
+          <Route path="ujian/tambah" element={<UjianAdminTambah />} />
+          <Route path="ujian/edit/:uuid" element={<UjianAdminEdit />} />
         </Route>
 
         {/* Maba Routes */}
