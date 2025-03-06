@@ -1,26 +1,104 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import Input from "../../components/Input";
+import Button from "../../components/Button";
+import Select from "../../components/Select";
 import axios from "axios";
 
 const BankSoalTambah = () => {
   const [judul, setJudul] = useState("");
-  const [rule, setRule] = useState("");
+  const [fakultas, setFakultas] = useState([]);
+  const [prodi, setProdi] = useState([]);
+  const [jenjang, setJenjang] = useState([]);
+
+  const [fakultasList, setFakultasList] = useState([]);
+  const [prodiList, setProdiList] = useState([]);
+  const [jenjangList, setJenjangList] = useState([]);
+
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate(); // Untuk redirect setelah submit
+  const navigate = useNavigate();
+
+  // Fetch Fakultas
+  useEffect(() => {
+    const fetchFakultas = async () => {
+      try {
+        const response = await axios.get("/select2/list_fakultas");
+        const fakultasOptions = response.data.map((item) => ({
+          value: item.id, // Sesuai dengan struktur API
+          label: item.text, // Menampilkan label Fakultas
+        }));
+        setFakultasList(fakultasOptions);
+      } catch (error) {
+        console.error("Gagal mengambil data Fakultas:", error);
+      }
+    };
+    fetchFakultas();
+  }, []);
+
+  // Fetch Jenjang
+  useEffect(() => {
+    const fetchJenjang = async () => {
+      try {
+        const response = await axios.get("/select2/list_jenjang");
+        const jenjangOptions = response.data.map((item) => ({
+          value: item.id, // Sesuai dengan struktur API
+          label: item.text, // Menampilkan label Jenjang
+        }));
+        setJenjangList(jenjangOptions);
+      } catch (error) {
+        console.error("Gagal mengambil data Jenjang:", error);
+      }
+    };
+    fetchJenjang();
+  }, []);
+
+  // Fetch Prodi berdasarkan Fakultas yang dipilih
+  useEffect(() => {
+    const fetchProdi = async () => {
+      if (fakultas.length > 0) {
+        try {
+          const responses = await Promise.all(
+            fakultas.map((fak) =>
+              axios.get(`/select2/list_prodi/${fak}`)
+            )
+          );
+          const prodiOptions = responses
+            .flatMap((response) => response.data)
+            .map((item) => ({
+              value: item.id, // Sesuai dengan struktur API
+              label: item.text, // Menampilkan nama Prodi
+            }));
+          setProdiList(prodiOptions);
+        } catch (error) {
+          console.error("Gagal mengambil data Prodi:", error);
+        }
+      } else {
+        setProdiList([]);
+      }
+    };
+    fetchProdi();
+  }, [fakultas]);
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Mencegah reload halaman
+    e.preventDefault();
     setLoading(true);
+
+    // Format rule sebagai JSON string
+    const rule = JSON.stringify({
+      fakultas: fakultasList.filter((f) => fakultas.includes(f.value)),
+      prodi: prodiList.filter((p) => prodi.includes(p.value)),
+      jenjang: jenjangList.filter((j) => jenjang.includes(j.value)),
+    });
 
     try {
       const response = await axios.post("/api/BankSoal", {
-        judul: judul,
-        rule: rule,
+        judul,
+        rule,
       });
 
       console.log("Berhasil menambahkan data:", response.data);
       alert("Bank Soal berhasil ditambahkan!");
-      navigate("/admin/bank-soal"); // Redirect ke halaman Bank Soal
+      navigate("/admin/bank-soal");
     } catch (error) {
       console.error("Gagal menambahkan data:", error);
       alert("Terjadi kesalahan, coba lagi.");
@@ -33,46 +111,68 @@ const BankSoalTambah = () => {
     <>
       {/* Breadcrumb */}
       <nav className="text-gray-600 text-sm mb-4">
-        <Link to="/admin/bank-soal" className="font-bold text-purple-700 hover:underline">Bank Soal</Link> /
-        <span className="text-gray-500"> Tambah Data</span>
+        <Link to="/admin/bank-soal" className="font-bold text-purple-700 hover:underline">
+          Bank Soal
+        </Link>{" "}
+        / <span className="text-gray-500">Tambah Data</span>
       </nav>
 
       {/* Form Tambah Data */}
-      <form onSubmit={handleSubmit} className="bg-white p-5 rounded-lg shadow-md border">
+      <form onSubmit={handleSubmit} className="bg-white p-5 rounded-lg shadow-md">
         <div className="mb-4">
-          <label className="block font-semibold mb-3">Judul Soal</label>
-          <input
+          <Input
+            label="Judul Soal"
             type="text"
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 bg-gray-100"
             placeholder="Masukkan judul soal"
             value={judul}
             onChange={(e) => setJudul(e.target.value)}
             required
           />
         </div>
+
+        {/* Select Fakultas */}
         <div className="mb-4">
-          <label className="block font-semibold mb-3">Rule Soal</label>
-          <input
-            type="text"
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 bg-gray-100"
-            placeholder="Masukkan rule soal"
-            value={rule}
-            onChange={(e) => setRule(e.target.value)}
+          <Select
+            label="Fakultas"
+            options={fakultasList}
+            value={fakultas}
+            onChange={setFakultas}
+            multiple={true}
+            required
+          />
+        </div>
+
+        {/* Select Prodi (Berdasarkan Fakultas yang Dipilih) */}
+        <div className="mb-4">
+          <Select
+            label="Program Studi"
+            options={prodiList}
+            value={prodi}
+            onChange={setProdi}
+            multiple={true}
+            required
+          />
+        </div>
+
+        {/* Select Jenjang */}
+        <div className="mb-4">
+          <Select
+            label="Jenjang"
+            options={jenjangList}
+            value={jenjang}
+            onChange={setJenjang}
+            multiple={true}
             required
           />
         </div>
 
         <div className="flex justify-end gap-3">
-          <Link to="/admin/bank-soal" className="bg-gray-400 text-white px-4 py-2 rounded-md hover:bg-gray-500">
-            Batal
+          <Link to="/admin/bank-soal">
+            <Button variant="secondary">Batal</Button>
           </Link>
-          <button
-            type="submit"
-            className={`bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
-            disabled={loading}
-          >
-            {loading ? "Menyimpan..." : "Simpan"}
-          </button>
+          <Button loading={loading} type="submit">
+            Simpan
+          </Button>
         </div>
       </form>
     </>
