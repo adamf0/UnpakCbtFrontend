@@ -18,6 +18,7 @@ import MabaLayout from "./layouts/MabaLayout";
 
 // Import PrivateRoute Component
 import PrivateRoute from "./components/PrivateRoute";
+import UjianMaba from "./pages/user/Ujian";
 
 function AppRoutes() {
   return (
@@ -42,6 +43,8 @@ function AppRoutes() {
       {/* Maba Routes */}
       <Route path="/maba" element={<MabaLayout />}>
         <Route path="dashboard" element={<MabaDashboard />} />
+        <Route path="ujian" element={<UjianMaba />} />
+
         {/* Other Maba routes */}
       </Route>
 

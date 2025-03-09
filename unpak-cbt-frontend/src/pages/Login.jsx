@@ -31,9 +31,7 @@ const Login = () => {
         setError("Login gagal, silakan coba lagi.");
       }
     } catch (err) {
-      setError(
-        err.response?.data?.message || "Terjadi kesalahan saat login."
-      );
+      setError(err.response?.data?.message || "Terjadi kesalahan saat login.");
     }
   };
 
@@ -56,7 +54,6 @@ const Login = () => {
 
         {/* Form */}
         <form className="space-y-4">
-          
           <Input
             label="Username"
             type="text"
@@ -72,7 +69,6 @@ const Login = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          
 
           {/* Remember Me & Forgot Password */}
           {/* <div className="flex justify-between text-sm text-gray-600">
@@ -85,14 +81,23 @@ const Login = () => {
             </a>
           </div> */}
 
-          <div className="mb-8"></div>
+          {/* Pesan Error */}
+          {error && (
+            <div className="text-sm text-center text-red-600 bg-red-100 rounded-md py-2 px-4">
+              {error}
+            </div>
+          )}
+
+          <div className="mb-4"></div>
 
           {/* Login Button */}
-          <Button onClick={handleLogin} className="w-full">Masuk</Button>
+          <Button onClick={handleLogin} className="w-full">
+            Masuk
+          </Button>
         </form>
 
         <div className="text-sm text-center text-gray-400 mt-5">
-          2025 Universitas Pakuan All Right Reserved.
+          © 2025 Universitas Pakuan All Right Reserved.
         </div>
 
         {/* Register Option */}
@@ -108,4 +113,3 @@ const Login = () => {
 };
 
 export default Login;
-
