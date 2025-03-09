@@ -1,7 +1,9 @@
-import { MdMenu, MdMenuOpen } from "react-icons/md";
-import { Link } from "react-router-dom";
+import { MdMenu } from "react-icons/md";
+import { useAuth } from "../context/authContext";
 
 const Navbar = ({ toggleSidebar, toggleCollapse }) => {
+  const { logout } = useAuth();
+
   return (
     <nav className="bg-white border-b-2 border-gray-100 p-4 flex items-center justify-between">
       <div className="flex items-center gap-4">
@@ -17,7 +19,7 @@ const Navbar = ({ toggleSidebar, toggleCollapse }) => {
       </div>
 
       {/* Logout Link */}
-      <Link to="/" className="hover:underline">Logout</Link>
+      <button onClick={logout}>Logout</button>
     </nav>
   );
 };

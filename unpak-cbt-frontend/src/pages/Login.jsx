@@ -2,12 +2,39 @@ import React, { useState } from "react";
 import Button from "../components/Button";
 import Input from "../components/Input";
 
+import { useAuth } from "../context/authContext";
+import axios from "axios";
+
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState(null);
 
-  const handleClick = () => {
-    alert("Button diklik!");
+  const { login } = useAuth();
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError(null);
+
+    try {
+      const response = await axios.post("/api/Authentication", {
+        username,
+        password,
+      });
+
+      const token = response.data;
+      // console.log("Token:", token);
+
+      if (token) {
+        login(token);
+      } else {
+        setError("Login gagal, silakan coba lagi.");
+      }
+    } catch (err) {
+      setError(
+        err.response?.data?.message || "Terjadi kesalahan saat login."
+      );
+    }
   };
 
   return (
@@ -61,7 +88,7 @@ const Login = () => {
           <div className="mb-8"></div>
 
           {/* Login Button */}
-          <Button onClick={handleClick} className="w-full">Masuk</Button>
+          <Button onClick={handleLogin} className="w-full">Masuk</Button>
         </form>
 
         <div className="text-sm text-center text-gray-400 mt-5">
@@ -81,3 +108,4 @@ const Login = () => {
 };
 
 export default Login;
+
