@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
 // Import Pages
 import Login from "./pages/Login";
@@ -11,6 +11,8 @@ import UjianAdminTambah from "./pages/admin/UjianAdminTambah";
 import UjianAdminEdit from "./pages/admin/UjianAdminEdit";
 import TemplateSoal from "./pages/admin/TemplateSoal";
 import MabaDashboard from "./pages/user/Dashboard";
+import UjianMaba from "./pages/user/Ujian";
+import UjianMabaDetail from "./pages/user/UjianDetail";
 
 // Import Layouts
 import AdminLayout from "./layouts/AdminLayout";
@@ -18,7 +20,6 @@ import MabaLayout from "./layouts/MabaLayout";
 
 // Import PrivateRoute Component
 import PrivateRoute from "./components/PrivateRoute";
-import UjianMaba from "./pages/user/Ujian";
 
 function AppRoutes() {
   return (
@@ -44,6 +45,7 @@ function AppRoutes() {
       <Route path="/maba" element={<MabaLayout />}>
         <Route path="dashboard" element={<MabaDashboard />} />
         <Route path="ujian" element={<UjianMaba />} />
+        <Route path="ujian/:uuid" element={<UjianMabaDetail />} />
 
         {/* Other Maba routes */}
       </Route>
