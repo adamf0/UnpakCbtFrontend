@@ -13,6 +13,7 @@ import TemplateSoal from "./pages/admin/TemplateSoal";
 import MabaDashboard from "./pages/user/Dashboard";
 import UjianMaba from "./pages/user/Ujian";
 import UjianMabaDetail from "./pages/user/UjianDetail";
+import SoalUjian from "./pages/user/SoalUjian";
 
 // Import Layouts
 import AdminLayout from "./layouts/AdminLayout";
@@ -46,6 +47,8 @@ function AppRoutes() {
         <Route path="dashboard" element={<MabaDashboard />} />
         <Route path="ujian" element={<UjianMaba />} />
         <Route path="ujian/:uuid" element={<UjianMabaDetail />} />
+        <Route path="/maba/ujian/:uuid/tipe/:tipe" element={<SoalUjian />} />
+
 
         {/* Other Maba routes */}
       </Route>

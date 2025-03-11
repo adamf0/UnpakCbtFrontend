@@ -15,7 +15,7 @@ const TemplateSoal = () => {
   const fetchSoalList = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`/api/TemplatePertanyaan/BankSoal/${uuid}`);
+      const response = await axios.get(`/api/TemplatePertanyaan/BankSoal/${uuid}?IdBankSoal=${uuid}`);
       setSoalList(response.data);
     } catch (error) {
       console.error("Error fetching template soal:", error);

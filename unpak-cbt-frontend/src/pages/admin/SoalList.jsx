@@ -36,8 +36,12 @@ const SoalList = ({ soalList, fetchSoalList }) => {
   const [jawabanImg, setJawabanImg] = useState(null);
   const [jawabanPreview, setJawabanPreview] = useState(null);
 
+  const tipeUrutan = ["TPA", "BI", "MTK"];
+  
   // Mendapatkan tipe soal unik dari data API
-  const uniqueTypes = [...new Set(soalList.map((soal) => soal.tipe))];
+  const uniqueTypes = tipeUrutan.filter((tipe) =>
+    soalList.some((soal) => soal.tipe === tipe)
+  );
 
   const typeMapping = {
     BI: "Bahasa Inggris",
@@ -45,7 +49,9 @@ const SoalList = ({ soalList, fetchSoalList }) => {
   };
 
   // Filter soal berdasarkan tab yang dipilih
-  const filteredSoalList = soalList.filter((soal) => soal.tipe === activeTab);
+  const filteredSoalList = soalList
+  .filter((soal) => soal.tipe === activeTab)
+  .sort((a, b) => a.uuid.localeCompare(b.uuid));
 
   // Fetch detail soal
   const fetchDetailSoal = async (id) => {
