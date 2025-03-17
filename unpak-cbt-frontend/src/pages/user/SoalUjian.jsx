@@ -35,6 +35,8 @@ const SoalUjian = () => {
 
         setPertanyaan(filtered);
 
+        console.log("Soal:", filtered);
+
         const jawabanRes = await axios.get(
           `/api/TemplateJawaban/BankSoal/${jadwal.uuidBankSoal}`
         );
@@ -86,87 +88,139 @@ const SoalUjian = () => {
         />
       </NavbarMaba>
 
-      <div className="container mx-auto p-4">
-        <div className="text-right text-lg font-semibold">
-          {status === "finished"
-            ? "Waktu Habis"
-            : `Sisa waktu: ${timeLeft ? formatTime(timeLeft) : "Loading..."}`}
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
-          {/* Pertanyaan dan Jawaban */}
-          <div className="md:col-span-2">
-            {pertanyaan.length > 0 && currentIndex !== null && (
-              <div>
-                <h1 className="text-xl font-bold mb-4">
-                  {currentIndex + 1}.{" "}
-                  {pertanyaan[currentIndex].gambar && (
-                    <img
-                      src={`/uploads/${pertanyaan[currentIndex].gambar}`}
-                      alt="Pertanyaan"
-                      className="max-w-[300px] mb-2"
-                    />
-                  )}
-                  {pertanyaan[currentIndex].pertanyaan ||
-                    "Pertanyaan tanpa teks"}
-                </h1>
-              </div>
-            )}
-
-            <div className="mt-4 space-y-4">
-              {jawabanForCurrentPertanyaan.map((jwb) => (
-                <div key={jwb.uuid} className="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    name={`jawaban-${currentPertanyaan.uuid}`}
-                    checked={
-                      selectedJawaban[currentPertanyaan.uuid] === jwb.uuid
-                    }
-                    onChange={() =>
-                      setSelectedJawaban((prev) => ({
-                        ...prev,
-                        [currentPertanyaan.uuid]: jwb.uuid,
-                      }))
-                    }
-                    className="size-6"
-                  />
-                  {jwb.jawabanImg && (
-                    <img
-                      src={`/uploads/${jwb.jawabanImg}`}
-                      alt="jawaban"
-                      className="h-12 w-auto object-cover"
-                    />
-                  )}
-                  <span>{jwb.jawabanText}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Nomor Soal dan tombol selesai */}
-          <div className="flex flex-col items-center gap-4">
-            <div className="grid grid-cols-5 gap-2 border p-4 rounded-lg shadow">
-              {pertanyaan.map((_, idx) => (
-                <div
-                  key={idx}
-                  onClick={() => setCurrentIndex(idx)}
-                  className={`border cursor-pointer flex items-center justify-center size-10 rounded ${
-                    idx === currentIndex ? "bg-purple-300" : "bg-white"
+      <div className="bg-gray-100 min-h-screen">
+        <div className="container mx-auto p-4">
+          {/* Pesan Tidak Ada Sinyal */}
+          {/* <div className="my-4 bg-red-100 text-red-600 rounded-xl px-4 py-3 text-center">
+            Tidak ada sinyal
+          </div> */}
+          <div className="text-right mt-4">
+            <span
+              className={`inline-block px-4 py-2 rounded-full text-sm font-semibold ${
+                status === "finished"
+                  ? "bg-red-100 text-red-700"
+                  : status === "ongoing"
+                  ? "bg-green-100 text-green-700"
+                  : "bg-yellow-100 text-yellow-700"
+              }`}
+            >
+              {status === "finished"
+                ? "Waktu Habis"
+                : `Sisa waktu: ${
+                    timeLeft ? formatTime(timeLeft) : "Loading..."
                   }`}
-                >
-                  {idx + 1}
-                </div>
-              ))}
+            </span>
+          </div>
+          <div className="mt-6 flex flex-col lg:flex-row gap-6">
+            {/* Bagian Soal & Jawaban */}
+            <div className="flex-1 bg-white shadow-lg rounded-xl p-6">
+              {pertanyaan.length > 0 && currentIndex !== null && (
+                <>
+                  <div className="flex items-start gap-3 mb-4">
+                    <span className="text-xl font-bold">
+                      {currentIndex + 1}.
+                    </span>
+                    <div>
+                      <h1 className="text-lg md:text-xl font-semibold mb-3">
+                        {pertanyaan[currentIndex].pertanyaan}
+                      </h1>
+                      {pertanyaan[currentIndex].gambar && (
+                        <img
+                          src={`/uploads/${pertanyaan[currentIndex].gambar}`}
+                          alt="soal"
+                          className="rounded-lg max-h-64 object-cover"
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    {jawabanForCurrentPertanyaan.map((jwb) => (
+                      <label
+                        key={jwb.uuid}
+                        className={`flex items-center gap-3 cursor-pointer border p-3 rounded-lg hover:bg-gray-50 ${
+                          selectedJawaban[currentPertanyaan.uuid] === jwb.uuid
+                            ? "border-purple-400 bg-purple-50"
+                            : "border-gray-200"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          className="form-radio text-purple-500"
+                          checked={
+                            selectedJawaban[currentPertanyaan.uuid] === jwb.uuid
+                          }
+                          onChange={() =>
+                            setSelectedJawaban({
+                              ...selectedJawaban,
+                              [currentPertanyaan.uuid]: jwb.uuid,
+                            })
+                          }
+                        />
+                        {jwb.jawabanImg && (
+                          <img
+                            src={`/uploads/${jwb.jawabanImg}`}
+                            alt="Jawaban"
+                            className="h-12 w-auto object-cover"
+                          />
+                        )}
+                        <span>{jwb.jawabanText}</span>
+                      </label>
+                    ))}
+                  </div>
+
+                  {/* Tombol Navigasi */}
+                  <div className="flex justify-between mt-8">
+                    <Button
+                      variant="secondary"
+                      disabled={currentIndex === 0}
+                      onClick={() => setCurrentIndex(currentIndex - 1)}
+                    >
+                      ← Sebelumnya
+                    </Button>
+                    <Button
+                      variant="primary"
+                      disabled={currentIndex === pertanyaan.length - 1}
+                      onClick={() => setCurrentIndex(currentIndex + 1)}
+                    >
+                      Selanjutnya →
+                    </Button>
+                  </div>
+                </>
+              )}
             </div>
 
-            <Button variant="primary" onClick={() => alert("Ujian selesai")}>
-              Selesai
-            </Button>
+            {/* Nomor Soal (Perbaikan disini) */}
+            <div className="w-full lg:w-72 bg-white shadow-lg rounded-xl p-4 lg:p-5 h-fit sticky top-4 overflow-hidden">
+              <div className="text-center font-semibold mb-4">Daftar Soal</div>
+              <div className="grid grid-cols-5 gap-2 max-h-[50vh] overflow-y-auto">
+                {pertanyaan.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setCurrentIndex(idx)}
+                    className={`aspect-square flex items-center justify-center rounded cursor-pointer transition-colors duration-200 ${
+                      idx === currentIndex
+                        ? "bg-purple-500 text-white"
+                        : selectedJawaban[pertanyaan[idx].uuid]
+                        ? "bg-green-200"
+                        : "bg-gray-100"
+                    }`}
+                  >
+                    {idx + 1}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
 
-        <div className="text-center mt-8 py-2 bg-gray-100 rounded-md shadow">
-          tidak ada sinyal
+          {/* Tombol Selesai (hanya muncul jika ujian berlangsung) */}
+          {status === "ongoing" && (
+            <div className="text-center mt-6">
+              <Button variant="primary" size="lg" onClick={handleStartExam}>
+                Selesai & Kirim Jawaban
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </>

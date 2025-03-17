@@ -331,6 +331,8 @@ const SoalList = ({ soalList, fetchSoalList }) => {
                 </Button>
               </div>
 
+              <div className="mb-3 text-red-600 italic">Ceklis untuk menentukan jawaban benar</div>
+
               {listJawaban.length > 0 ? (
                 <ul className="mt-2 space-y-2">
                   {listJawaban.map((jawaban) => (

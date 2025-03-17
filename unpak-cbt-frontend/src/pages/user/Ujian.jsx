@@ -81,6 +81,34 @@ const UjianMaba = () => {
     return `${h}:${m}:${s}`;
   };
 
+  // Fungsi untuk memulai ujian
+  const handleStartExam = async () => {
+    try {
+      const payload = {
+        id: dataUjian.uuid,
+        noReg: dataUjian.noReg,
+      };
+
+      const response = await axios.put(
+        `/api/Ujian/Start/${dataUjian.uuid}`,
+        payload,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("Ujian dimulai:", response.data);
+
+      // Redirect ke halaman ujian setelah berhasil
+      navigate(`/maba/ujian/${dataUjian.uuid}`);
+    } catch (error) {
+      console.error("Gagal memulai ujian:", error);
+      alert("Terjadi kesalahan saat memulai ujian. Silakan coba lagi.");
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex flex-col justify-center items-center h-screen">
@@ -114,82 +142,98 @@ const UjianMaba = () => {
 
       {/* Main Content */}
       <div className="flex bg-purple-400 flex-col items-center justify-center min-h-[calc(100vh-72px)] px-4 py-8">
-        <div className="w-full max-w-2xl bg-white shadow-xl rounded-xl p-8">
+        <div className="w-full max-w-3xl bg-white shadow-2xl rounded-2xl overflow-hidden">
           {dataUjian && jadwal ? (
             <>
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-600 mb-6 text-center border-b border-gray-200 pb-4">
-                Jadwal Ujian Anda
-              </h1>
-
-              <div className="space-y-3 text-left">
-                <div className="flex justify-between py-2">
-                  <span className="font-medium text-gray-600">
-                    No Registrasi
-                  </span>
-                  <span className="font-semibold">{dataUjian.noReg}</span>
-                </div>
-                <div className="flex justify-between py-2">
-                  <span className="font-medium text-gray-600">Deskripsi</span>
-                  <span className="font-semibold">{jadwal.deskripsi}</span>
-                </div>
-                <div className="flex justify-between py-2">
-                  <span className="font-medium text-gray-600">Tanggal</span>
-                  <span className="font-semibold">{jadwal.tanggal}</span>
-                </div>
-                <div className="flex justify-between py-2">
-                  <span className="font-medium text-gray-600">Jam Mulai</span>
-                  <span className="font-semibold">{jadwal.jamMulai}</span>
-                </div>
-                <div className="flex justify-between py-2">
-                  <span className="font-medium text-gray-600">Jam Akhir</span>
-                  <span className="font-semibold">{jadwal.jamAkhir}</span>
-                </div>
-                <div className="flex justify-between py-2">
-                  <span className="font-medium text-gray-600">Kuota</span>
-                  <span className="font-semibold">{jadwal.kouta}</span>
-                </div>
+              <div className="bg-gradient-to-r from-purple-500 to-indigo-500 px-6 py-5 text-center">
+                <h1 className="text-xl md:text-2xl font-bold text-white">
+                  Jadwal Ujian Anda
+                </h1>
               </div>
 
-              <div className="mt-6 py-4 px-5 bg-purple-100 rounded-lg text-center shadow-sm">
-                {status === "waiting" && (
-                  <p className="text-blue-500 font-semibold">
-                    Ujian akan dimulai dalam: {formatTime(timeLeft)}
-                  </p>
-                )}
+              <div className="px-6 py-8 space-y-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex flex-col">
+                    <span className="text-sm text-gray-500">No Registrasi</span>
+                    <span className="font-semibold text-gray-800 text-lg">
+                      {dataUjian.noReg}
+                    </span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-sm text-gray-500">Deskripsi</span>
+                    <span className="font-semibold text-gray-800 text-lg">
+                      {jadwal.deskripsi}
+                    </span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-sm text-gray-500">Tanggal Ujian</span>
+                    <span className="font-semibold text-gray-800 text-lg">
+                      {jadwal.tanggal}
+                    </span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-sm text-gray-500">Jam Mulai</span>
+                    <span className="font-semibold text-gray-800 text-lg">
+                      {jadwal.jamMulai}
+                    </span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-sm text-gray-500">Jam Berakhir</span>
+                    <span className="font-semibold text-gray-800 text-lg">
+                      {jadwal.jamAkhir}
+                    </span>
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-sm text-gray-500">Kuota Peserta</span>
+                    <span className="font-semibold text-gray-800 text-lg">
+                      {jadwal.kouta}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="mt-8 text-center px-4 py-3 rounded-xl bg-indigo-50">
+                  {status === "waiting" && (
+                    <p className="text-indigo-600 font-semibold">
+                      Ujian akan dimulai dalam: {formatTime(timeLeft)}
+                    </p>
+                  )}
+                  {status === "ongoing" && (
+                    <p className="text-green-600 font-semibold">
+                      Ujian sedang berlangsung, sisa waktu:{" "}
+                      {formatTime(timeLeft)}
+                    </p>
+                  )}
+                  {status === "finished" && (
+                    <p className="text-red-600 font-semibold">
+                      Ujian telah berakhir.
+                    </p>
+                  )}
+                  {!status && (
+                    <p className="text-gray-500 font-semibold">Loading...</p>
+                  )}
+                </div>
+
                 {status === "ongoing" && (
-                  <p className="text-green-500 font-semibold">
-                    Ujian sedang berlangsung, sisa waktu: {formatTime(timeLeft)}
-                  </p>
-                )}
-                {status === "finished" && (
-                  <p className="text-red-500 font-semibold">
-                    Ujian telah berakhir.
-                  </p>
+                  <div className="mt-8">
+                    <button
+                      onClick={handleStartExam}
+                      className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white py-3 rounded-xl shadow-md hover:shadow-lg hover:from-purple-600 hover:to-indigo-600 transition duration-200 text-lg font-semibold"
+                    >
+                      Mulai Ujian
+                    </button>
+                  </div>
                 )}
               </div>
-
-              {status === "ongoing" && (
-                <div className="mt-8">
-                  <Button
-                    variant="primary"
-                    className="w-full py-3 text-lg"
-                    onClick={() => navigate(`/maba/ujian/${dataUjian.uuid}`)}
-                  >
-                    Mulai Ujian
-                  </Button>
-                </div>
-              )}
             </>
           ) : (
-            <div className="py-12 text-center flex flex-col items-center justify-center">
-              <div className="mb-4 flex size-12 items-center justify-center rounded-full bg-red-100">
+            <div className="py-12 px-6 text-center">
+              <div className="mx-auto flex size-16 bg-red-100 items-center justify-center rounded-full mb-5">
                 <svg
-                  className="size-6 text-red-600"
+                  className="size-8 text-red-500"
                   fill="none"
                   viewBox="0 0 24 24"
-                  strokeWidth="1.5"
+                  strokeWidth={1.5}
                   stroke="currentColor"
-                  aria-hidden="true"
                 >
                   <path
                     strokeLinecap="round"
@@ -198,9 +242,9 @@ const UjianMaba = () => {
                   />
                 </svg>
               </div>
-              <p className="text-gray-500 text-xl">
+              <p className="text-gray-600 text-lg">
                 Data ujian tidak ditemukan untuk NPM:{" "}
-                <span className="font-semibold">{npm}</span>
+                <span className="font-semibold text-gray-800">{npm}</span>
               </p>
             </div>
           )}
