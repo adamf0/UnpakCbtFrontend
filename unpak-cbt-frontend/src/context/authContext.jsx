@@ -23,8 +23,6 @@ export const AuthProvider = ({ children }) => {
     navigate("/");
   };
 
-  const axiosInstance = axios.create({ baseURL: '/api' });
-
   axios.interceptors.request.use((config) => {
     const token = localStorage.getItem("token");
     if (token) {

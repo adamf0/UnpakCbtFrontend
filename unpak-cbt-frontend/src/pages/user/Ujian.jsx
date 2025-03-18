@@ -84,25 +84,41 @@ const UjianMaba = () => {
   // Fungsi untuk memulai ujian
   const handleStartExam = async () => {
     try {
-      const payload = {
-        id: dataUjian.uuid,
-        noReg: dataUjian.noReg,
-      };
+      // const payload = {
+      //   id: dataUjian.uuid,
+      //   noReg: dataUjian.noReg,
+      // };
 
-      const response = await axios.put(
-        `/api/Ujian/Start/${dataUjian.uuid}`,
-        payload,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+      // const response = await axios.put(
+      //   `/api/Ujian/Start/${dataUjian.uuid}`,
+      //   payload,
+      //   {
+      //     headers: {
+      //       "Content-Type": "application/json",
+      //     },
+      //   }
+      // );
+
+      // console.log("Ujian dimulai:", response);
+
+      sessionStorage.setItem(
+        "examData",
+        JSON.stringify({
+          npm: dataUjian.noReg,
+          idUjian: dataUjian.uuid,
+          idJadwalUjian: dataUjian.uuidJadwalUjian,
+        })
       );
 
-      console.log("Ujian dimulai:", response.data);
-
       // Redirect ke halaman ujian setelah berhasil
-      navigate(`/maba/ujian/${dataUjian.uuid}`);
+      navigate(`/maba/ujian/${dataUjian.uuid}`, {
+        state: {
+          npm: dataUjian.noReg,
+          idUjian: dataUjian.uuid,
+          idJadwalUjian: dataUjian.uuidJadwalUjian,
+        },
+      });
+
     } catch (error) {
       console.error("Gagal memulai ujian:", error);
       alert("Terjadi kesalahan saat memulai ujian. Silakan coba lagi.");

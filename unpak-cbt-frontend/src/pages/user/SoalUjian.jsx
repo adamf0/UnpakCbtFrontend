@@ -15,6 +15,11 @@ const SoalUjian = () => {
   const [timeLeft, setTimeLeft] = useState(null);
   const [status, setStatus] = useState("");
 
+  const [examData, setExamData] = useState(() => {
+    const storedData = sessionStorage.getItem("examData");
+    return storedData ? JSON.parse(storedData) : null;
+  });
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -75,6 +80,45 @@ const SoalUjian = () => {
     (jwb) => jwb.uuidTemplateSoal === currentPertanyaan?.uuid
   );
 
+  const kirimJawaban = async (uuidTemplateSoal, uuidJawabanBenar) => {
+    if (!examData) {
+      alert("Data ujian tidak tersedia.");
+      return;
+    }
+
+    const payload = {
+      uuidUjian: examData.idUjian,
+      noReg: examData.npm,
+      uuidTemplateSoal: uuidTemplateSoal,
+      uuidJawabanBenar: uuidJawabanBenar,
+    };
+
+    try {
+      const response = await axios.put("/api/Ujian/Cbt", payload, {
+        headers: { "Content-Type": "application/json" },
+      });
+
+      console.log("Jawaban berhasil dikirim:", response.data);
+    } catch (error) {
+      if (error.response) {
+        console.error("Gagal mengirim jawaban:", error.response.data);
+        alert(
+          `Error: ${
+            error.response.data?.message || "Terjadi kesalahan pada server."
+          }`
+        );
+      } else if (error.request) {
+        console.error("Tidak ada respons dari server:", error.request);
+        alert(
+          "Gagal menghubungi server. Pastikan koneksi internet Anda stabil."
+        );
+      } else {
+        console.error("Kesalahan tak terduga:", error.message);
+        alert("Terjadi kesalahan tak terduga. Coba lagi nanti.");
+      }
+    }
+  };
+
   return (
     <>
       <NavbarMaba>
@@ -116,7 +160,7 @@ const SoalUjian = () => {
             <div className="flex-1 bg-white shadow-lg rounded-xl p-6">
               {pertanyaan.length > 0 && currentIndex !== null && (
                 <>
-                  <div className="flex items-start gap-3 mb-4">
+                  <div className="flex items-start gap-3 my-4">
                     <span className="text-xl font-bold">
                       {currentIndex + 1}.
                     </span>
@@ -134,7 +178,7 @@ const SoalUjian = () => {
                     </div>
                   </div>
 
-                  <div className="space-y-4">
+                  <div className="space-y-4 mt-4">
                     {jawabanForCurrentPertanyaan.map((jwb) => (
                       <label
                         key={jwb.uuid}
@@ -150,13 +194,16 @@ const SoalUjian = () => {
                           checked={
                             selectedJawaban[currentPertanyaan.uuid] === jwb.uuid
                           }
-                          onChange={() =>
+                          onChange={() => {
                             setSelectedJawaban({
                               ...selectedJawaban,
                               [currentPertanyaan.uuid]: jwb.uuid,
-                            })
-                          }
+                            });
+
+                            kirimJawaban(currentPertanyaan.uuid, jwb.uuid);
+                          }}
                         />
+
                         {jwb.jawabanImg && (
                           <img
                             src={`/uploads/${jwb.jawabanImg}`}
@@ -190,7 +237,7 @@ const SoalUjian = () => {
               )}
             </div>
 
-            {/* Nomor Soal (Perbaikan disini) */}
+            {/* Nomor Soal */}
             <div className="w-full lg:w-72 bg-white shadow-lg rounded-xl p-4 lg:p-5 h-fit sticky top-4 overflow-hidden">
               <div className="text-center font-semibold mb-4">Daftar Soal</div>
               <div className="grid grid-cols-5 gap-2 max-h-[50vh] overflow-y-auto">
@@ -216,7 +263,7 @@ const SoalUjian = () => {
           {/* Tombol Selesai (hanya muncul jika ujian berlangsung) */}
           {status === "ongoing" && (
             <div className="text-center mt-6">
-              <Button variant="primary" size="lg" onClick={handleStartExam}>
+              <Button variant="primary" size="lg" onClick={() => {}}>
                 Selesai & Kirim Jawaban
               </Button>
             </div>

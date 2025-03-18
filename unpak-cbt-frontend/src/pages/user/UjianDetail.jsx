@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import NavbarMaba from "../../components/NavbarMaba";
 import Button from "../../components/Button";
@@ -14,6 +14,7 @@ const styleMap = {
 const UjianMabaDetail = () => {
   const { uuid } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [jadwalUjian, setJadwalUjian] = useState(null);
   const [groupedPertanyaan, setGroupedPertanyaan] = useState({});
@@ -21,6 +22,27 @@ const UjianMabaDetail = () => {
   const [status, setStatus] = useState("");
 
   const tipeUrutan = ["TPA", "BI", "MTK"];
+
+  const [examData, setExamData] = useState(() => {
+    return location.state || JSON.parse(sessionStorage.getItem("examData"));
+  });
+
+  useEffect(() => {
+    if (location.state) {
+      sessionStorage.setItem("examData", JSON.stringify(location.state));
+    } else {
+      const data = sessionStorage.getItem("examData");
+      if (data) {
+        setExamData(JSON.parse(data));
+      }
+    }
+  }, [location.state]);
+
+  useEffect(() => {
+    console.log("npm:", examData?.npm);
+    console.log("idUjian:", examData?.idUjian);
+    console.log("idJadwalUjian:", examData?.idJadwalUjian);
+  }, [examData]);
 
   useEffect(() => {
     const fetchData = async () => {
