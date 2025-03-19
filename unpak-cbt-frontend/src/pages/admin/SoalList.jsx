@@ -233,6 +233,9 @@ const SoalList = ({ soalList, fetchSoalList }) => {
     if (detailSoal?.uuidJawabanBenar) {
       setSelectedJawabanBenar(detailSoal.uuidJawabanBenar);
     }
+    if (detailSoal?.uuid) {
+      fetchListJawaban(detailSoal.uuid);
+    }
   }, [detailSoal]);
 
   return (
@@ -244,7 +247,16 @@ const SoalList = ({ soalList, fetchSoalList }) => {
         {uniqueTypes.map((type) => (
           <button
             key={type}
-            onClick={() => setActiveTab(type)}
+            onClick={() => {
+              setActiveTab(type); // Ganti tab aktif
+              setSelectedSoal(null); // Reset soal terpilih
+              setDetailSoal(null); // Reset detail soal
+              setListJawaban([]); // Kosongkan daftar jawaban
+              setPertanyaanInput(""); // Reset input pertanyaan
+              setBobotInput(""); // Reset input bobot
+              setGambarPreview(null); // Reset preview gambar
+              setSelectedJawabanBenar(null); // Reset jawaban benar
+            }}
             className={`py-2 px-4 text-sm font-semibold border-b-2 transition ${
               activeTab === type
                 ? "border-purple-500 text-purple-600"
@@ -304,16 +316,6 @@ const SoalList = ({ soalList, fetchSoalList }) => {
                 </div>
               )}
 
-              {/* <span
-                className={`inline-block mt-2 px-2 py-1 text-xs font-semibold rounded-full ${
-                  detailSoal.state === "init"
-                    ? "bg-yellow-100 text-yellow-700"
-                    : "bg-green-100 text-green-700"
-                }`}
-              >
-                {detailSoal.state}
-              </span> */}
-
               <hr className="border border-gray-200" />
 
               <div className="flex justify-between align-center my-4">
@@ -336,40 +338,8 @@ const SoalList = ({ soalList, fetchSoalList }) => {
               </div>
 
               {listJawaban.length > 0 ? (
-                <ul className="mt-2 space-y-2">
+                <div className="mt-2 space-y-2">
                   {listJawaban.map((jawaban) => (
-                    // <li
-                    //   key={jawaban.uuid}
-                    //   className="p-2 px-4 border border-gray-200 rounded-lg bg-gray-50 flex items-center justify-between"
-                    // >
-                    //   <div className="flex items-center">
-                    //     <input
-                    //       type="radio"
-                    //       checked={selectedJawabanBenar === jawaban.uuid}
-                    //       onChange={() =>
-                    //         handleSelectCorrectAnswer(jawaban.uuid)
-                    //       }
-                    //       className="mr-2 w-6 h-6 appearance-none border-2 border-gray-300 rounded-md checked:bg-purple-600 checked:border-purple-600 checked:ring-2 checked:ring-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    //     />
-                    //     <p className="text-gray-800">{jawaban.jawabanText}</p>
-                    //     {jawaban.jawabanImg && (
-                    //       <img
-                    //         src={`/uploads/${jawaban.jawabanImg}`}
-                    //         alt="Jawaban"
-                    //         className="w-16 h-16 object-cover rounded-md ml-2"
-                    //       />
-                    //     )}
-                    //   </div>
-
-                    //   {/* Tombol Hapus */}
-                    //   <button
-                    //     onClick={() => handleConfirmDeleteJawaban(jawaban)}
-                    //     className="bg-red-300 text-white px-2 py-1 text-xs rounded-md hover:bg-red-600 transition"
-                    //   >
-                    //     X
-                    //   </button>
-                    // </li>
-
                     <label
                       key={jawaban.uuid}
                       className={`flex items-center gap-3 cursor-pointer border p-3 rounded-lg hover:bg-gray-50 ${
@@ -402,7 +372,7 @@ const SoalList = ({ soalList, fetchSoalList }) => {
                       </button>
                     </label>
                   ))}
-                </ul>
+                </div>
               ) : (
                 <p className="text-gray-500 mt-2">Belum ada jawaban.</p>
               )}
@@ -431,8 +401,13 @@ const SoalList = ({ soalList, fetchSoalList }) => {
                   onClick={() => {
                     fetchDetailSoal(soal.uuid);
                     fetchListJawaban(soal.uuid);
+                    setSelectedSoal(soal);
                   }}
-                  className="relative border border-gray-200 rounded-lg shadow-sm bg-gray-50 flex items-center justify-center text-lg font-bold text-gray-700 cursor-pointer hover:bg-purple-200 hover:border-purple-600 transition aspect-square"
+                  className={`relative border border-gray-200 rounded-lg shadow-sm bg-gray-50 flex items-center justify-center text-lg font-bold text-gray-700 cursor-pointer hover:bg-purple-200 hover:border-purple-600 transition aspect-square ${
+                    selectedSoal?.uuid === soal.uuid
+                      ? "bg-purple-200 border-purple-600"
+                      : ""
+                  }`}
                 >
                   {/* Tombol Hapus di Pojok Kanan Atas */}
                   <button
