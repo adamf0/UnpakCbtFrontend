@@ -2,17 +2,16 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Button from "../../components/Button";
-import { PulseLoader } from "react-spinners";
 import NavbarMaba from "../../components/NavbarMaba";
+import LoadingScreen from "../../components/LoadingScreen";
 
 const UjianMaba = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { npm } = location.state || {};
 
-  const color = "oklch(0.71 0.19 306.6)";
-
   const [loading, setLoading] = useState(true);
+  
   const [dataUjian, setDataUjian] = useState(null);
   const [jadwal, setJadwal] = useState(null);
   const [timeLeft, setTimeLeft] = useState(null);
@@ -37,8 +36,6 @@ const UjianMaba = () => {
       } catch (error) {
         console.error("Gagal mengambil data ujian:", error);
         setDataUjian(null);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -46,6 +43,7 @@ const UjianMaba = () => {
   }, [npm]);
 
   useEffect(() => {
+    setLoading(true);
     let timer;
     if (jadwal) {
       timer = setInterval(() => {
@@ -63,6 +61,7 @@ const UjianMaba = () => {
           setStatus("finished");
           setTimeLeft(0);
         }
+        setLoading(false);
       }, 1000);
     }
     return () => clearInterval(timer);
@@ -84,22 +83,22 @@ const UjianMaba = () => {
   // Fungsi untuk memulai ujian
   const handleStartExam = async () => {
     try {
-      // const payload = {
-      //   id: dataUjian.uuid,
-      //   noReg: dataUjian.noReg,
-      // };
+      const payload = {
+        id: dataUjian.uuid,
+        noReg: dataUjian.noReg,
+      };
 
-      // const response = await axios.put(
-      //   `/api/Ujian/Start/${dataUjian.uuid}`,
-      //   payload,
-      //   {
-      //     headers: {
-      //       "Content-Type": "application/json",
-      //     },
-      //   }
-      // );
+      const response = await axios.put(
+        `/api/Ujian/Start/${dataUjian.uuid}`,
+        payload,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      // console.log("Ujian dimulai:", response);
+      console.log("Ujian dimulai:", response);
 
       sessionStorage.setItem(
         "examData",
@@ -126,20 +125,7 @@ const UjianMaba = () => {
   };
 
   if (loading) {
-    return (
-      <div className="flex flex-col justify-center items-center h-screen">
-        <div className="mb-8">
-          <PulseLoader
-            color={color}
-            loading={loading}
-            size={24}
-            aria-label="Loading Spinner"
-            data-testid="loader"
-          />
-        </div>
-        <p className="text-gray-600">Sedang memuat data ujian...</p>
-      </div>
-    );
+    return <LoadingScreen message="Sedang memuat data ujian..." />;
   }
 
   return (

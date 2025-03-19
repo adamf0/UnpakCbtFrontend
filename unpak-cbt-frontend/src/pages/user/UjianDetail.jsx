@@ -4,17 +4,20 @@ import NavbarMaba from "../../components/NavbarMaba";
 import Button from "../../components/Button";
 import axios from "axios";
 import { FaBrain, FaSquareRootAlt, FaLanguage } from "react-icons/fa";
+import LoadingScreen from "../../components/LoadingScreen";
 
 const styleMap = {
-  TPA: { bg: "bg-purple-100", iconColor: "text-purple-600" },
-  MTK: { bg: "bg-green-100", iconColor: "text-green-600" },
-  BI: { bg: "bg-blue-100", iconColor: "text-blue-600" },
+  TPA: { bg: "bg-purple-100", hover: "hover:bg-purple-50", iconColor: "text-purple-600" },
+  MTK: { bg: "bg-green-100", hover: "hover:bg-green-50", iconColor: "text-green-600" },
+  BI: { bg: "bg-blue-100", hover: "hover:bg-blue-50", iconColor: "text-blue-600" },
 };
 
 const UjianMabaDetail = () => {
   const { uuid } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const [loading, setLoading] = useState(true);
 
   const [jadwalUjian, setJadwalUjian] = useState(null);
   const [groupedPertanyaan, setGroupedPertanyaan] = useState({});
@@ -66,6 +69,7 @@ const UjianMabaDetail = () => {
           return acc;
         }, {});
         setGroupedPertanyaan(grouped);
+        
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -97,6 +101,9 @@ const UjianMabaDetail = () => {
           setStatus("finished");
           setTimeLeft(0);
         }
+
+        setLoading(false);
+        
       }, 1000);
     }
 
@@ -115,6 +122,10 @@ const UjianMabaDetail = () => {
       .padStart(2, "0");
     return `${h}:${m}:${s}`;
   };
+
+  if (loading) {
+    return <LoadingScreen message="Sedang memuat data ujian..." />;
+  }
 
   return (
     <>
@@ -153,7 +164,7 @@ const UjianMabaDetail = () => {
               <div
                 key={tipe}
                 onClick={() => navigate(`/maba/ujian/${uuid}/tipe/${tipe}`)}
-                className="relative border border-gray-200 rounded-xl shadow p-6 cursor-pointer hover:bg-gray-100 flex flex-col items-center justify-center text-center font-semibold text-base"
+                className={`relative border border-gray-200 rounded-xl shadow p-6 cursor-pointer flex flex-col items-center justify-center text-center font-semibold text-base ${styleMap[tipe].hover}`}
               >
                 <div
                   className={`p-4 rounded-full mb-3 ${styleMap[tipe].bg} ${styleMap[tipe].iconColor}`}

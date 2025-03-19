@@ -3,10 +3,13 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import NavbarMaba from "../../components/NavbarMaba";
 import Button from "../../components/Button";
+import LoadingScreen from "../../components/LoadingScreen";
 
 const SoalUjian = () => {
   const { uuid, tipe } = useParams();
   const navigate = useNavigate();
+
+  const [loading, setLoading] = useState(true);
 
   const [pertanyaan, setPertanyaan] = useState([]);
   const [jawaban, setJawaban] = useState([]);
@@ -14,8 +17,9 @@ const SoalUjian = () => {
   const [selectedJawaban, setSelectedJawaban] = useState({});
   const [timeLeft, setTimeLeft] = useState(null);
   const [status, setStatus] = useState("");
+  const [answeredQuestions, setAnsweredQuestions] = useState(new Map());
 
-  const [examData, setExamData] = useState(() => {
+  const [examData] = useState(() => {
     const storedData = sessionStorage.getItem("examData");
     return storedData ? JSON.parse(storedData) : null;
   });
@@ -58,6 +62,7 @@ const SoalUjian = () => {
             setStatus("finished");
             setTimeLeft(0);
           }
+          setLoading(false);
         }, 1000);
         return () => clearInterval(timer);
       } catch (error) {
@@ -67,6 +72,32 @@ const SoalUjian = () => {
 
     fetchData();
   }, [uuid, tipe]);
+
+  useEffect(() => {
+    if (examData) {
+      fetchAnsweredQuestions();
+    }
+  }, [examData]);
+
+  const fetchAnsweredQuestions = async () => {
+    try {
+      const response = await axios.get(`/api/Ujian/Cbt/${examData.idUjian}`);
+      const answeredMap = new Map();
+
+      response.data.forEach((item) => {
+        if (item.uuidTemplatePilihan) {
+          answeredMap.set(
+            item.uuidTemplatePertanyaan,
+            item.uuidTemplatePilihan
+          );
+        }
+      });
+
+      setAnsweredQuestions(answeredMap);
+    } catch (error) {
+      console.error("Error fetching answered questions:", error);
+    }
+  };
 
   const formatTime = (seconds) => {
     const h = String(Math.floor(seconds / 3600)).padStart(2, "0");
@@ -94,30 +125,22 @@ const SoalUjian = () => {
     };
 
     try {
-      const response = await axios.put("/api/Ujian/Cbt", payload, {
+      await axios.put("/api/Ujian/Cbt", payload, {
         headers: { "Content-Type": "application/json" },
       });
 
-      console.log("Jawaban berhasil dikirim:", response.data);
+      setAnsweredQuestions(
+        (prev) => new Map([...prev, [uuidTemplateSoal, uuidJawabanBenar]])
+      );
     } catch (error) {
-      if (error.response) {
-        console.error("Gagal mengirim jawaban:", error.response.data);
-        alert(
-          `Error: ${
-            error.response.data?.message || "Terjadi kesalahan pada server."
-          }`
-        );
-      } else if (error.request) {
-        console.error("Tidak ada respons dari server:", error.request);
-        alert(
-          "Gagal menghubungi server. Pastikan koneksi internet Anda stabil."
-        );
-      } else {
-        console.error("Kesalahan tak terduga:", error.message);
-        alert("Terjadi kesalahan tak terduga. Coba lagi nanti.");
-      }
+      console.error("Gagal mengirim jawaban:", error);
+      alert("Terjadi kesalahan, coba lagi.");
     }
   };
+
+  if (loading) {
+    return <LoadingScreen message="Sedang memuat data ujian..." />;
+  }
 
   return (
     <>
@@ -192,8 +215,10 @@ const SoalUjian = () => {
                           type="radio"
                           className="form-radio text-purple-500"
                           checked={
-                            selectedJawaban[currentPertanyaan.uuid] === jwb.uuid
+                            answeredQuestions.get(currentPertanyaan.uuid) ===
+                            jwb.uuid
                           }
+                          disabled={status === "finished"}
                           onChange={() => {
                             setSelectedJawaban({
                               ...selectedJawaban,
@@ -241,14 +266,14 @@ const SoalUjian = () => {
             <div className="w-full lg:w-72 bg-white shadow-lg rounded-xl p-4 lg:p-5 h-fit sticky top-4 overflow-hidden">
               <div className="text-center font-semibold mb-4">Daftar Soal</div>
               <div className="grid grid-cols-5 gap-2 max-h-[50vh] overflow-y-auto">
-                {pertanyaan.map((_, idx) => (
+                {pertanyaan.map((item, idx) => (
                   <button
                     key={idx}
                     onClick={() => setCurrentIndex(idx)}
-                    className={`aspect-square flex items-center justify-center rounded cursor-pointer transition-colors duration-200 ${
+                    className={`aspect-square flex items-center justify-center rounded cursor-pointer transition-colors ${
                       idx === currentIndex
                         ? "bg-purple-500 text-white"
-                        : selectedJawaban[pertanyaan[idx].uuid]
+                        : answeredQuestions.has(item.uuid)
                         ? "bg-green-200"
                         : "bg-gray-100"
                     }`}
@@ -263,7 +288,13 @@ const SoalUjian = () => {
           {/* Tombol Selesai (hanya muncul jika ujian berlangsung) */}
           {status === "ongoing" && (
             <div className="text-center mt-6">
-              <Button variant="primary" size="lg" onClick={() => {}}>
+              <Button
+                variant="primary"
+                size="lg"
+                onClick={() => {
+                  navigate(-1);
+                }}
+              >
                 Selesai & Kirim Jawaban
               </Button>
             </div>
