@@ -36,6 +36,8 @@ const UjianMaba = () => {
       } catch (error) {
         console.error("Gagal mengambil data ujian:", error);
         setDataUjian(null);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -43,7 +45,6 @@ const UjianMaba = () => {
   }, [npm]);
 
   useEffect(() => {
-    setLoading(true);
     let timer;
     if (jadwal) {
       timer = setInterval(() => {
@@ -61,7 +62,6 @@ const UjianMaba = () => {
           setStatus("finished");
           setTimeLeft(0);
         }
-        setLoading(false);
       }, 1000);
     }
     return () => clearInterval(timer);
