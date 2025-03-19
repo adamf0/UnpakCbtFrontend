@@ -37,7 +37,7 @@ const SoalList = ({ soalList, fetchSoalList }) => {
   const [jawabanPreview, setJawabanPreview] = useState(null);
 
   const tipeUrutan = ["TPA", "BI", "MTK"];
-  
+
   // Mendapatkan tipe soal unik dari data API
   const uniqueTypes = tipeUrutan.filter((tipe) =>
     soalList.some((soal) => soal.tipe === tipe)
@@ -50,8 +50,8 @@ const SoalList = ({ soalList, fetchSoalList }) => {
 
   // Filter soal berdasarkan tab yang dipilih
   const filteredSoalList = soalList
-  .filter((soal) => soal.tipe === activeTab)
-  .sort((a, b) => a.uuid.localeCompare(b.uuid));
+    .filter((soal) => soal.tipe === activeTab)
+    .sort((a, b) => a.uuid.localeCompare(b.uuid));
 
   // Fetch detail soal
   const fetchDetailSoal = async (id) => {
@@ -331,42 +331,69 @@ const SoalList = ({ soalList, fetchSoalList }) => {
                 </Button>
               </div>
 
-              <div className="mb-3 text-red-600 italic">Ceklis untuk menentukan jawaban benar</div>
+              <div className="mb-3 text-red-600 italic">
+                Ceklis untuk menentukan jawaban benar
+              </div>
 
               {listJawaban.length > 0 ? (
                 <ul className="mt-2 space-y-2">
                   {listJawaban.map((jawaban) => (
-                    <li
-                      key={jawaban.uuid}
-                      className="p-2 px-4 border border-gray-200 rounded-lg bg-gray-50 flex items-center justify-between"
-                    >
-                      <div className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={selectedJawabanBenar === jawaban.uuid}
-                          onChange={() =>
-                            handleSelectCorrectAnswer(jawaban.uuid)
-                          }
-                          className="mr-2 w-6 h-6 appearance-none border-2 border-gray-300 rounded-md checked:bg-purple-600 checked:border-purple-600 checked:ring-2 checked:ring-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        />
-                        <p className="text-gray-800">{jawaban.jawabanText}</p>
-                        {jawaban.jawabanImg && (
-                          <img
-                            src={`/uploads/${jawaban.jawabanImg}`}
-                            alt="Jawaban"
-                            className="w-16 h-16 object-cover rounded-md ml-2"
-                          />
-                        )}
-                      </div>
+                    // <li
+                    //   key={jawaban.uuid}
+                    //   className="p-2 px-4 border border-gray-200 rounded-lg bg-gray-50 flex items-center justify-between"
+                    // >
+                    //   <div className="flex items-center">
+                    //     <input
+                    //       type="radio"
+                    //       checked={selectedJawabanBenar === jawaban.uuid}
+                    //       onChange={() =>
+                    //         handleSelectCorrectAnswer(jawaban.uuid)
+                    //       }
+                    //       className="mr-2 w-6 h-6 appearance-none border-2 border-gray-300 rounded-md checked:bg-purple-600 checked:border-purple-600 checked:ring-2 checked:ring-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    //     />
+                    //     <p className="text-gray-800">{jawaban.jawabanText}</p>
+                    //     {jawaban.jawabanImg && (
+                    //       <img
+                    //         src={`/uploads/${jawaban.jawabanImg}`}
+                    //         alt="Jawaban"
+                    //         className="w-16 h-16 object-cover rounded-md ml-2"
+                    //       />
+                    //     )}
+                    //   </div>
 
-                      {/* Tombol Hapus */}
-                      <button
-                        onClick={() => handleConfirmDeleteJawaban(jawaban)}
-                        className="bg-red-300 text-white px-2 py-1 text-xs rounded-md hover:bg-red-600 transition"
-                      >
-                        X
-                      </button>
-                    </li>
+                    //   {/* Tombol Hapus */}
+                    //   <button
+                    //     onClick={() => handleConfirmDeleteJawaban(jawaban)}
+                    //     className="bg-red-300 text-white px-2 py-1 text-xs rounded-md hover:bg-red-600 transition"
+                    //   >
+                    //     X
+                    //   </button>
+                    // </li>
+
+                    <label
+                      key={jawaban.uuid}
+                      className={`flex items-center gap-3 cursor-pointer border p-3 rounded-lg hover:bg-gray-50 ${
+                        selectedJawabanBenar === jawaban.uuid
+                          ? "border-purple-400 bg-purple-50"
+                          : "border-gray-200"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        className="form-radio text-purple-500"
+                        checked={selectedJawabanBenar === jawaban.uuid}
+                        onChange={() => handleSelectCorrectAnswer(jawaban.uuid)}
+                      />
+
+                      <p className="text-gray-800">{jawaban.jawabanText}</p>
+                      {jawaban.jawabanImg && (
+                        <img
+                          src={`/uploads/${jawaban.jawabanImg}`}
+                          alt="Jawaban"
+                          className="w-16 h-16 object-cover rounded-md ml-2"
+                        />
+                      )}
+                    </label>
                   ))}
                 </ul>
               ) : (
