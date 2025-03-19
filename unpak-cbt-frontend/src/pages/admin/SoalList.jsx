@@ -243,24 +243,24 @@ const SoalList = ({ soalList, fetchSoalList }) => {
       <h2 className="text-lg font-semibold mb-4">Daftar Soal</h2>
 
       {/* Tabs */}
-      <div className="border-b-2 border-gray-200 flex space-x-4 mb-4">
+      <div className="flex mb-4 border-b-2 border-gray-200 overflow-x-auto no-scrollbar">
         {uniqueTypes.map((type) => (
           <button
             key={type}
             onClick={() => {
-              setActiveTab(type); // Ganti tab aktif
-              setSelectedSoal(null); // Reset soal terpilih
-              setDetailSoal(null); // Reset detail soal
-              setListJawaban([]); // Kosongkan daftar jawaban
-              setPertanyaanInput(""); // Reset input pertanyaan
-              setBobotInput(""); // Reset input bobot
-              setGambarPreview(null); // Reset preview gambar
-              setSelectedJawabanBenar(null); // Reset jawaban benar
+              setActiveTab(type);
+              setSelectedSoal(null);
+              setDetailSoal(null);
+              setListJawaban([]);
+              setPertanyaanInput("");
+              setBobotInput("");
+              setGambarPreview(null);
+              setSelectedJawabanBenar(null);
             }}
-            className={`py-2 px-4 text-sm font-semibold border-b-2 transition ${
+            className={`py-3 px-5 text-sm font-semibold transition-all rounded-t-md ${
               activeTab === type
-                ? "border-purple-500 text-purple-600"
-                : "border-transparent text-gray-500 hover:text-purple-600"
+                ? "border-b-4 border-purple-500 text-purple-600 bg-purple-100"
+                : "border-transparent border-b-4 text-gray-500 hover:text-purple-600 hover:bg-gray-100"
             }`}
           >
             {typeMapping[type] || type}
