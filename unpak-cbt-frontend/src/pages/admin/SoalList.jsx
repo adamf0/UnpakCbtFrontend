@@ -393,6 +393,13 @@ const SoalList = ({ soalList, fetchSoalList }) => {
                           className="w-16 h-16 object-cover rounded-md ml-2"
                         />
                       )}
+
+                      <button
+                        onClick={() => handleConfirmDeleteJawaban(jawaban)}
+                        className="ms-auto bg-red-300 text-white px-2 py-1 text-xs rounded-md hover:bg-red-600 transition"
+                      >
+                        X
+                      </button>
                     </label>
                   ))}
                 </ul>
