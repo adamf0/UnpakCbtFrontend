@@ -3,13 +3,30 @@ import { useEffect, useState } from "react";
 import NavbarMaba from "../../components/NavbarMaba";
 import Button from "../../components/Button";
 import axios from "axios";
-import { FaBrain, FaSquareRootAlt, FaLanguage } from "react-icons/fa";
+import {
+  FaBrain,
+  FaSquareRootAlt,
+  FaLanguage,
+  FaTimesCircle,
+} from "react-icons/fa";
 import LoadingScreen from "../../components/LoadingScreen";
 
 const styleMap = {
-  TPA: { bg: "bg-purple-100", hover: "hover:bg-purple-50", iconColor: "text-purple-600" },
-  MTK: { bg: "bg-green-100", hover: "hover:bg-green-50", iconColor: "text-green-600" },
-  BI: { bg: "bg-blue-100", hover: "hover:bg-blue-50", iconColor: "text-blue-600" },
+  TPA: {
+    bg: "bg-purple-100",
+    hover: "hover:bg-purple-50",
+    iconColor: "text-purple-600",
+  },
+  MTK: {
+    bg: "bg-green-100",
+    hover: "hover:bg-green-50",
+    iconColor: "text-green-600",
+  },
+  BI: {
+    bg: "bg-blue-100",
+    hover: "hover:bg-blue-50",
+    iconColor: "text-blue-600",
+  },
 };
 
 const UjianMabaDetail = () => {
@@ -21,6 +38,7 @@ const UjianMabaDetail = () => {
 
   const [jadwalUjian, setJadwalUjian] = useState(null);
   const [groupedPertanyaan, setGroupedPertanyaan] = useState({});
+  const [answeredCount, setAnsweredCount] = useState({});
   const [timeLeft, setTimeLeft] = useState(null);
   const [status, setStatus] = useState("");
 
@@ -69,7 +87,21 @@ const UjianMabaDetail = () => {
           return acc;
         }, {});
         setGroupedPertanyaan(grouped);
-        
+
+        const jawabanResponse = await axios.get(
+          `/api/Ujian/Cbt/${examData.idUjian}`
+        );
+
+        // Hitung jumlah soal yang telah dijawab berdasarkan tipe
+        const countedAnswers = jawabanResponse.data.reduce((acc, item) => {
+          if (item.uuidTemplatePilihan) {
+            acc[item.tipe] = (acc[item.tipe] || 0) + 1;
+          }
+          return acc;
+        }, {});
+
+        setAnsweredCount(countedAnswers);
+
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -103,7 +135,6 @@ const UjianMabaDetail = () => {
         }
 
         setLoading(false);
-        
       }, 1000);
     }
 
@@ -121,6 +152,26 @@ const UjianMabaDetail = () => {
       .toString()
       .padStart(2, "0");
     return `${h}:${m}:${s}`;
+  };
+
+  const handleSelesaiUjian = async () => {
+    if (!examData) {
+      alert("Data ujian tidak tersedia.");
+      return;
+    }
+
+    try {
+      await axios.put(`/api/Ujian/Done/${examData.idUjian}`, {
+        id: examData.idUjian,
+        noReg: examData.npm,
+      });
+
+      alert("Ujian telah selesai!");
+      navigate("/maba/dashboard"); // Redirect ke halaman utama setelah selesai
+    } catch (error) {
+      console.error("Gagal menyelesaikan ujian:", error);
+      alert("Terjadi kesalahan, coba lagi.");
+    }
   };
 
   if (loading) {
@@ -153,6 +204,10 @@ const UjianMabaDetail = () => {
           >
             {status === "finished"
               ? "Waktu Habis"
+              : status === "waiting"
+              ? `Menunggu Dimulai (${
+                  timeLeft ? formatTime(timeLeft) : "Loading..."
+                })`
               : `Sisa waktu: ${timeLeft ? formatTime(timeLeft) : "Loading..."}`}
           </span>
         </div>
@@ -180,13 +235,24 @@ const UjianMabaDetail = () => {
                     ? "Matematika"
                     : "Tes Potensi Akademik"}
                 </span>
+                <span className="mt-2 text-sm text-gray-600">
+                  {answeredCount[tipe] || 0} / {groupedPertanyaan[tipe].length} soal terjawab
+                </span>
               </div>
             ))}
         </div>
 
         {status === "finished" && (
-          <div className="mt-8 text-center text-red-500 font-semibold bg-red-100 text-red-700 p-4 rounded-lg">
-            Ujian telah berakhir.
+          <div className="mt-8 flex items-center justify-center text-red-500 font-semibold bg-red-100 text-red-700 p-4 rounded-lg">
+            <FaTimesCircle className="text-2xl mr-2" /> Ujian telah berakhir.
+          </div>
+        )}
+
+        {status === "ongoing" && (
+          <div className="mt-6 text-center">
+            <Button variant="primary" size="lg" onClick={handleSelesaiUjian}>
+              Selesai Mengerjakan Seluruh Ujian
+            </Button>
           </div>
         )}
       </div>

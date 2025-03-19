@@ -27,7 +27,7 @@ const Input = ({
 
   return (
     <div className="w-full relative">
-      {label && <label className="block text-gray-700 mb-2">{label}</label>}
+      {label && <label className="block text-sm font-medium text-gray-900 mb-2">{label}</label>}
       <div className="relative">
         <input
           type={inputType}

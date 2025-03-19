@@ -52,12 +52,21 @@ const SoalUjian = () => {
         setJawaban(jawabanRes.data);
 
         // Timer
-        const end = new Date(`${jadwal.tanggal}T${jadwal.jamAkhir}`).getTime();
         const timer = setInterval(() => {
-          const now = Date.now();
-          if (now <= end) {
-            setTimeLeft(Math.floor((end - now) / 1000));
+          const now = new Date();
+          const start = new Date(
+            `${jadwal.tanggal}T${jadwal.jamMulai}:00`
+          );
+          const end = new Date(
+            `${jadwal.tanggal}T${jadwal.jamAkhir}:00`
+          );
+
+          if (now < start) {
+            setStatus("waiting");
+            setTimeLeft(Math.floor((start - now) / 1000));
+          } else if (now >= start && now <= end) {
             setStatus("ongoing");
+            setTimeLeft(Math.floor((end - now) / 1000));
           } else {
             setStatus("finished");
             setTimeLeft(0);
@@ -100,9 +109,15 @@ const SoalUjian = () => {
   };
 
   const formatTime = (seconds) => {
-    const h = String(Math.floor(seconds / 3600)).padStart(2, "0");
-    const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, "0");
-    const s = String(seconds % 60).padStart(2, "0");
+    const h = Math.floor(seconds / 3600)
+      .toString()
+      .padStart(2, "0");
+    const m = Math.floor((seconds % 3600) / 60)
+      .toString()
+      .padStart(2, "0");
+    const s = Math.floor(seconds % 60)
+      .toString()
+      .padStart(2, "0");
     return `${h}:${m}:${s}`;
   };
 
@@ -173,6 +188,10 @@ const SoalUjian = () => {
             >
               {status === "finished"
                 ? "Waktu Habis"
+                : status === "waiting"
+                ? `Menunggu Dimulai (${
+                    timeLeft ? formatTime(timeLeft) : "Loading..."
+                  })`
                 : `Sisa waktu: ${
                     timeLeft ? formatTime(timeLeft) : "Loading..."
                   }`}
@@ -261,44 +280,46 @@ const SoalUjian = () => {
                 </>
               )}
             </div>
-
-            {/* Nomor Soal */}
-            <div className="w-full lg:w-72 bg-white shadow-lg rounded-xl p-4 lg:p-5 h-fit sticky top-4 overflow-hidden">
-              <div className="text-center font-semibold mb-4">Daftar Soal</div>
-              <div className="grid grid-cols-5 gap-2 max-h-[50vh] overflow-y-auto">
-                {pertanyaan.map((item, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setCurrentIndex(idx)}
-                    className={`aspect-square flex items-center justify-center rounded cursor-pointer transition-colors ${
-                      idx === currentIndex
-                        ? "bg-purple-500 text-white"
-                        : answeredQuestions.has(item.uuid)
-                        ? "bg-green-200"
-                        : "bg-gray-100"
-                    }`}
-                  >
-                    {idx + 1}
-                  </button>
-                ))}
+            <div>
+              {/* Nomor Soal */}
+              <div className="w-full lg:w-72 bg-white shadow-lg rounded-xl p-4 lg:p-5 h-fit sticky top-4 overflow-hidden">
+                <div className="text-center font-semibold mb-4">
+                  Daftar Soal
+                </div>
+                <div className="grid grid-cols-5 gap-2 max-h-[50vh] overflow-y-auto">
+                  {pertanyaan.map((item, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setCurrentIndex(idx)}
+                      className={`aspect-square flex items-center justify-center rounded cursor-pointer transition-colors ${
+                        idx === currentIndex
+                          ? "bg-purple-500 text-white"
+                          : answeredQuestions.has(item.uuid)
+                          ? "bg-green-200"
+                          : "bg-gray-100"
+                      }`}
+                    >
+                      {idx + 1}
+                    </button>
+                  ))}
+                </div>
               </div>
+              {/* Tombol Selesai (hanya muncul jika ujian berlangsung) */}
+              {status === "ongoing" && (
+                <div className="text-center mt-6">
+                  <Button
+                    variant="primary"
+                    size="lg"
+                    onClick={() => {
+                      navigate(-1);
+                    }}
+                  >
+                    Selesai Mengerjakan {tipe ? `(${tipe})` : ""}
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
-
-          {/* Tombol Selesai (hanya muncul jika ujian berlangsung) */}
-          {status === "ongoing" && (
-            <div className="text-center mt-6">
-              <Button
-                variant="primary"
-                size="lg"
-                onClick={() => {
-                  navigate(-1);
-                }}
-              >
-                Selesai & Kirim Jawaban
-              </Button>
-            </div>
-          )}
         </div>
       </div>
     </>

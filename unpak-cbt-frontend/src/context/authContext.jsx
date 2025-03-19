@@ -1,4 +1,4 @@
-import { createContext, useState, useContext, useEffect } from "react";
+import { createContext, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -31,8 +31,18 @@ export const AuthProvider = ({ children }) => {
     return config;
   });
 
+  axios.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      if (error.response && error.response.status === 401) {
+        logout();
+      }
+      return Promise.reject(error);
+    }
+  );
+
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout, axios: axios }}>
+    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
