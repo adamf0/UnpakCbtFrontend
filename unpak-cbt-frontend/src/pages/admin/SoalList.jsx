@@ -429,16 +429,16 @@ const SoalList = ({ soalList, fetchSoalList }) => {
 
           {/* Tombol Simpan & Simpan Permanen */}
           <div className="mt-4 flex space-x-2">
-            <Button onClick={handleSave} className="w-full" variant="success">
-              Simpan
+            <Button onClick={handleSave} className="w-full" variant="primary">
+              Update & Simpan 
             </Button>
-            <Button
+            {/* <Button
               onClick={() => console.log("Simpan data semua")}
               className="w-full"
               variant="primary"
             >
               Selesai
-            </Button>
+            </Button> */}
           </div>
         </div>
       </div>

@@ -27,9 +27,8 @@ const SoalUjian = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const ujian = (await axios.get(`/api/Ujian/${uuid}`)).data;
         const jadwal = (
-          await axios.get(`/api/JadwalUjian/${ujian.uuidJadwalUjian}`)
+          await axios.get(`/api/JadwalUjian/${examData?.idJadwalUjian}`)
         ).data;
 
         const soalResponse = (
@@ -54,12 +53,8 @@ const SoalUjian = () => {
         // Timer
         const timer = setInterval(() => {
           const now = new Date();
-          const start = new Date(
-            `${jadwal.tanggal}T${jadwal.jamMulai}:00`
-          );
-          const end = new Date(
-            `${jadwal.tanggal}T${jadwal.jamAkhir}:00`
-          );
+          const start = new Date(`${jadwal.tanggal}T${jadwal.jamMulai}:00`);
+          const end = new Date(`${jadwal.tanggal}T${jadwal.jamAkhir}:00`);
 
           if (now < start) {
             setStatus("waiting");
@@ -134,7 +129,7 @@ const SoalUjian = () => {
 
     const payload = {
       uuidUjian: examData.idUjian,
-      noReg: examData.npm,
+      noReg: examData.noReg,
       uuidTemplateSoal: uuidTemplateSoal,
       uuidJawabanBenar: uuidJawabanBenar,
     };
@@ -153,6 +148,41 @@ const SoalUjian = () => {
     }
   };
 
+  useEffect(() => {
+    // Cegah klik kanan
+    const handleContextMenu = (e) => {
+      e.preventDefault();
+    };
+
+    // Cegah beberapa shortcut keyboard untuk inspect element
+    const handleKeyDown = (e) => {
+      // F12
+      if (e.keyCode === 123) {
+        e.preventDefault();
+      }
+      // Ctrl+Shift+I
+      if (e.ctrlKey && e.shiftKey && e.keyCode === 73) {
+        e.preventDefault();
+      }
+      // Ctrl+Shift+J
+      if (e.ctrlKey && e.shiftKey && e.keyCode === 74) {
+        e.preventDefault();
+      }
+      // Ctrl+U (biasanya untuk melihat source code)
+      if (e.ctrlKey && e.keyCode === 85) {
+        e.preventDefault();
+      }
+    };
+
+    document.addEventListener("contextmenu", handleContextMenu);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("contextmenu", handleContextMenu);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
   if (loading) {
     return <LoadingScreen message="Sedang memuat data ujian..." />;
   }
@@ -170,7 +200,7 @@ const SoalUjian = () => {
         />
       </NavbarMaba>
 
-      <div className="bg-gray-100 min-h-screen">
+      <div style={{ userSelect: "none" }} className="bg-gray-100 min-h-screen">
         <div className="container mx-auto p-4">
           {/* Pesan Tidak Ada Sinyal */}
           {/* <div className="my-4 bg-red-100 text-red-600 rounded-xl px-4 py-3 text-center">

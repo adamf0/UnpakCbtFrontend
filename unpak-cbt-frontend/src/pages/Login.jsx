@@ -97,7 +97,7 @@ const Login = () => {
         </form>
 
         <div className="text-sm text-center text-gray-400 mt-5">
-          © 2025 Universitas Pakuan All Right Reserved.
+          © {new Date().getFullYear()} Universitas Pakuan. All Rights Reserved.
         </div>
 
         {/* Register Option */}

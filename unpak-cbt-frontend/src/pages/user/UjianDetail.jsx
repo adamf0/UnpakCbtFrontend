@@ -60,7 +60,7 @@ const UjianMabaDetail = () => {
   }, [location.state]);
 
   useEffect(() => {
-    console.log("npm:", examData?.npm);
+    console.log("noReg:", examData?.noReg);
     console.log("idUjian:", examData?.idUjian);
     console.log("idJadwalUjian:", examData?.idJadwalUjian);
   }, [examData]);
@@ -68,12 +68,9 @@ const UjianMabaDetail = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Ambil data ujian
-        const ujianResponse = await axios.get(`/api/Ujian/${uuid}`);
-
         // Ambil jadwal ujian
         const jadwalResponse = await axios.get(
-          `/api/JadwalUjian/${ujianResponse.data.uuidJadwalUjian}`
+          `/api/JadwalUjian/${examData?.idJadwalUjian}`
         );
         setJadwalUjian(jadwalResponse.data);
 
@@ -161,13 +158,13 @@ const UjianMabaDetail = () => {
     }
 
     try {
-      await axios.put(`/api/Ujian/Done/${examData.idUjian}`, {
+      await axios.put(`/api/Ujian/Done`, {
         id: examData.idUjian,
-        noReg: examData.npm,
+        noReg: examData.noReg,
       });
 
       alert("Ujian telah selesai!");
-      navigate("/maba/dashboard"); // Redirect ke halaman utama setelah selesai
+      navigate(`/maba/${examData.idUjian}/${examData.noReg}`);
     } catch (error) {
       console.error("Gagal menyelesaikan ujian:", error);
       alert("Terjadi kesalahan, coba lagi.");
@@ -212,7 +209,7 @@ const UjianMabaDetail = () => {
           </span>
         </div>
 
-        <div className="mt-8 grid grid-cols-3 gap-4">
+        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {tipeUrutan
             .filter((tipe) => groupedPertanyaan[tipe])
             .map((tipe) => (

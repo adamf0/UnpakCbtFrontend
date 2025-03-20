@@ -1,17 +1,15 @@
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import Button from "../../components/Button";
-import NavbarMaba from "../../components/NavbarMaba";
 import LoadingScreen from "../../components/LoadingScreen";
 
 const UjianMaba = () => {
-  const location = useLocation();
+  const { uuid, noReg } = useParams();
   const navigate = useNavigate();
-  const { npm } = location.state || {};
 
   const [loading, setLoading] = useState(true);
-  
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingTime, setLoadingTime] = useState(true);
   const [dataUjian, setDataUjian] = useState(null);
   const [jadwal, setJadwal] = useState(null);
   const [timeLeft, setTimeLeft] = useState(null);
@@ -19,19 +17,18 @@ const UjianMaba = () => {
 
   useEffect(() => {
     const fetchDataUjian = async () => {
+      if (!uuid || !noReg) return;
+
       try {
-        const response = await axios.get("/api/Ujian");
-        const data = response.data;
+        const response = await axios.get(`/api/Ujian/${uuid}/${noReg}`);
+        setDataUjian(response.data);
+        console.log("Data Ujian:", response.data);
 
-        const matchedData = data.find((item) => item.noReg === npm);
-        setDataUjian(matchedData || null);
-
-        if (matchedData) {
+        if (response.data.uuidJadwalUjian) {
           const jadwalResponse = await axios.get(
-            `/api/JadwalUjian/${matchedData.uuidJadwalUjian}`
+            `/api/JadwalUjian/${response.data.uuidJadwalUjian}`
           );
           setJadwal(jadwalResponse.data);
-          console.log("Jadwal Ujian:", jadwalResponse.data);
         }
       } catch (error) {
         console.error("Gagal mengambil data ujian:", error);
@@ -42,7 +39,7 @@ const UjianMaba = () => {
     };
 
     fetchDataUjian();
-  }, [npm]);
+  }, [uuid, noReg]);
 
   useEffect(() => {
     let timer;
@@ -62,6 +59,8 @@ const UjianMaba = () => {
           setStatus("finished");
           setTimeLeft(0);
         }
+
+        setLoadingTime(false);
       }, 1000);
     }
     return () => clearInterval(timer);
@@ -80,87 +79,90 @@ const UjianMaba = () => {
     return `${h}:${m}:${s}`;
   };
 
-  // Fungsi untuk memulai ujian
   const handleStartExam = async () => {
     try {
-      const payload = {
-        id: dataUjian.uuid,
-        noReg: dataUjian.noReg,
-      };
+      setIsLoading(true); // Aktifkan loading saat tombol ditekan
 
-      const response = await axios.put(
-        `/api/Ujian/Start/${dataUjian.uuid}`,
-        payload,
-        {
-          headers: {
-            "Content-Type": "application/json",
+      // Jika status sudah "start", langsung navigasi tanpa API PUT
+      if (dataUjian.status === "start") {
+        navigate(`/maba/ujian/${dataUjian.uuid}`, {
+          state: {
+            noReg: dataUjian.noReg,
+            idUjian: dataUjian.uuid,
+            idJadwalUjian: dataUjian.uuidJadwalUjian,
           },
-        }
-      );
+        });
+        return;
+      }
 
-      console.log("Ujian dimulai:", response);
+      // Jika status masih "active", jalankan API untuk memulai ujian
+      if (dataUjian.status === "active") {
+        const payload = {
+          id: dataUjian.uuid,
+          noReg: dataUjian.noReg,
+        };
 
-      sessionStorage.setItem(
-        "examData",
-        JSON.stringify({
-          npm: dataUjian.noReg,
-          idUjian: dataUjian.uuid,
-          idJadwalUjian: dataUjian.uuidJadwalUjian,
-        })
-      );
+        await axios.put(`/api/Ujian/Start`, payload, {
+          headers: { "Content-Type": "application/json" },
+        });
 
-      // Redirect ke halaman ujian setelah berhasil
+        // Update sessionStorage untuk menyimpan status ujian
+        sessionStorage.setItem(
+          "examData",
+          JSON.stringify({
+            noReg: dataUjian.noReg,
+            idUjian: dataUjian.uuid,
+            idJadwalUjian: dataUjian.uuidJadwalUjian,
+          })
+        );
+      }
+
+      // Navigasi ke halaman ujian setelah API berhasil dijalankan
       navigate(`/maba/ujian/${dataUjian.uuid}`, {
         state: {
-          npm: dataUjian.noReg,
+          noReg: dataUjian.noReg,
           idUjian: dataUjian.uuid,
           idJadwalUjian: dataUjian.uuidJadwalUjian,
         },
       });
-
     } catch (error) {
       console.error("Gagal memulai ujian:", error);
       alert("Terjadi kesalahan saat memulai ujian. Silakan coba lagi.");
+    } finally {
+      setIsLoading(false); // Nonaktifkan loading setelah selesai
     }
   };
 
   if (loading) {
-    return <LoadingScreen message="Sedang memuat data ujian..." />;
+    return <LoadingScreen message="Sedang memuat data..." />;
   }
 
   return (
     <>
-      {/* Navbar */}
-      <NavbarMaba>
-        <Button variant="outline" onClick={() => navigate(-1)}>
-          ← Kembali
-        </Button>
-        <img
-          src="/src/assets/images/logo-unpak.png"
-          alt="Logo"
-          className="h-10 w-auto"
-        />
-      </NavbarMaba>
+      <div className="flex bg-purple-400 flex-col items-center justify-center min-h-[100vh] px-4 py-4">
+        <div className="flex justify-center mb-4">
+          <img
+            src="/src/assets/images/logo-unpak.png"
+            alt="Logo"
+            className="h-24"
+          />
+        </div>
+        <h2 className="text-2xl font-bold text-white text-center">
+          Selamat Datang Calon Mahasiswa Baru!
+        </h2>
+        <p className="text-white mb-8">di Portal Computer Based Test (CBT).</p>
 
-      {/* Main Content */}
-      <div className="flex bg-purple-400 flex-col items-center justify-center min-h-[calc(100vh-72px)] px-4 py-8">
         <div className="w-full max-w-3xl bg-white shadow-2xl rounded-2xl overflow-hidden">
           {dataUjian && jadwal ? (
             <>
               <div className="bg-gradient-to-r from-purple-500 to-indigo-500 px-6 py-5 text-center">
-                <h1 className="text-xl md:text-2xl font-bold text-white">
-                  Jadwal Ujian Anda
+                <h1 className="text-lg md:text-xl font-bold text-white">
+                  No Registrasi : {dataUjian.noReg}
                 </h1>
               </div>
 
-              <div className="px-6 py-8 space-y-5">
+              <div className="px-6 pt-8 pb-4 space-y-5">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="flex flex-col">
-                    <span className="text-sm text-gray-500">No Registrasi</span>
-                    <span className="font-semibold text-gray-800 text-lg">
-                      {dataUjian.noReg}
-                    </span>
-                  </div>
                   <div className="flex flex-col">
                     <span className="text-sm text-gray-500">Deskripsi</span>
                     <span className="font-semibold text-gray-800 text-lg">
@@ -185,45 +187,93 @@ const UjianMaba = () => {
                       {jadwal.jamAkhir}
                     </span>
                   </div>
-                  <div className="flex flex-col">
-                    <span className="text-sm text-gray-500">Kuota Peserta</span>
-                    <span className="font-semibold text-gray-800 text-lg">
-                      {jadwal.kouta}
-                    </span>
-                  </div>
                 </div>
 
-                <div className="mt-8 text-center px-4 py-3 rounded-xl bg-indigo-50">
-                  {status === "waiting" && (
-                    <p className="text-indigo-600 font-semibold">
-                      Ujian akan dimulai dalam: {formatTime(timeLeft)}
-                    </p>
+                {dataUjian.status === "cancel" && (
+                  <div className="mt-4 px-4 py-3 bg-red-100 border border-red-400 text-red-600 rounded-lg text-center">
+                    <div className="flex justify-center items-start gap-2">
+                      
+                      <p className="text-sm font-medium">
+                        Anda tidak dapat memulai ujian karena status ujian Anda
+                        tidak aktif. Harap lapor ke admin PMB untuk mengaktifkan
+                        kembali.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {dataUjian.status === "done" && (
+                  <div className="mt-4 px-4 py-3 bg-green-100 border border-green-400 text-green-600 rounded-lg text-center">
+                    <div className="flex justify-center items-center gap-2">
+                      <svg
+                        className="w-5 h-5 text-green-600"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                      <p className="text-sm font-medium">
+                        Anda telah menyelesaikan Ujian CBT. Selamat!
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {status === "ongoing" &&
+                  (dataUjian.status === "active" ||
+                    dataUjian.status === "start") && (
+                    <div className="mt-4">
+                      <button
+                        onClick={handleStartExam}
+                        disabled={isLoading}
+                        className="w-full font-bold bg-gradient-to-r from-purple-500 to-indigo-500 text-white py-3 rounded-xl shadow-md 
+                                  hover:from-purple-600 hover:to-indigo-600 hover:shadow-lg transition-all duration-300 ease-in-out"
+                      >
+                        {isLoading ? "Memulai..." : "Mulai Ujian"}
+                      </button>
+                    </div>
                   )}
-                  {status === "ongoing" && (
-                    <p className="text-green-600 font-semibold">
-                      Ujian sedang berlangsung, sisa waktu:{" "}
+              </div>
+
+              <div className="text-center px-4 py-5 rounded-b-xl bg-indigo-50">
+                {loadingTime && (
+                  <p className="text-gray-500 font-semibold">
+                    Memuat data ujian...
+                  </p>
+                )}
+
+                {!loadingTime && status === "waiting" && (
+                  <div>
+                    <p className="text-gray-600 font-medium">
+                      Ujian akan dimulai dalam:
+                    </p>
+                    <p className="text-indigo-600 text-2xl font-bold mt-1">
                       {formatTime(timeLeft)}
                     </p>
-                  )}
-                  {status === "finished" && (
-                    <p className="text-red-600 font-semibold">
-                      Ujian telah berakhir.
-                    </p>
-                  )}
-                  {!status && (
-                    <p className="text-gray-500 font-semibold">Loading...</p>
-                  )}
-                </div>
-
-                {status === "ongoing" && (
-                  <div className="mt-8">
-                    <button
-                      onClick={handleStartExam}
-                      className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white py-3 rounded-xl shadow-md hover:shadow-lg hover:from-purple-600 hover:to-indigo-600 transition duration-200 text-lg font-semibold"
-                    >
-                      Mulai Ujian
-                    </button>
                   </div>
+                )}
+
+                {!loadingTime && status === "ongoing" && (
+                  <div>
+                    <p className="text-gray-600 font-medium">
+                      Ujian sedang berlangsung, sisa waktu:
+                    </p>
+                    <p className="text-green-600 text-2xl font-bold mt-1">
+                      {formatTime(timeLeft)}
+                    </p>
+                  </div>
+                )}
+
+                {!loadingTime && status === "finished" && (
+                  <p className="text-red-600 font-semibold">
+                    Ujian telah selesai.
+                  </p>
                 )}
               </div>
             </>
@@ -245,11 +295,14 @@ const UjianMaba = () => {
                 </svg>
               </div>
               <p className="text-gray-600 text-lg">
-                Data ujian tidak ditemukan untuk NPM:{" "}
-                <span className="font-semibold text-gray-800">{npm}</span>
+                Data ujian tidak ditemukan untuk No Registrasi:{" "}
+                <span className="font-semibold text-gray-800">{noReg}</span>
               </p>
             </div>
           )}
+        </div>
+        <div className="text-sm text-center text-white mt-5">
+          © {new Date().getFullYear()} Universitas Pakuan. All Rights Reserved.
         </div>
       </div>
     </>

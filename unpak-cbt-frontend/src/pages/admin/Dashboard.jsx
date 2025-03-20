@@ -44,23 +44,15 @@ const AdminDashboard = () => {
       try {
         const response = await axios.get("/api/JadwalUjian/active");
         console.log("Ujian Aktif:", response.data);
-
-        if (response.data && typeof response.data === "object") {
-          // Jika hanya ada satu ujian aktif, langsung simpan ke state
+        // Pastikan response.data berupa array dan memiliki data
+        if (Array.isArray(response.data) && response.data.length > 0) {
           setUjianAktif(response.data);
         } else {
-          // Jika tidak ada data atau format tidak sesuai, reset state
-          setUjianAktif(null);
+          setUjianAktif([]);
         }
       } catch (error) {
         console.error("Error fetching ujian aktif:", error);
-
-        // Jika API mengembalikan status 400, berarti tidak ada ujian aktif
-        if (error.response && error.response.status === 400) {
-          setUjianAktif(null);
-        } else {
-          setUjianAktif(null);
-        }
+        setUjianAktif([]);
       }
     };
 
@@ -138,7 +130,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Laporan Ujian - Lebih besar, menempati 2 kolom di desktop */}
-        <div className="lg:col-span-2 bg-white shadow-md rounded-lg p-6">
+        <div className="lg:col-span-2 bg-white shadow-md rounded-lg p-6 self-start">
           <h2 className="text-2xl font-semibold text-gray-800 mb-6">Laporan</h2>
 
           {/* Filter Section */}
@@ -278,64 +270,64 @@ const AdminDashboard = () => {
           </div>
 
           {/* Ujian Aktif */}
-          <div className="bg-white shadow-md rounded-lg p-6">
-          
-            {ujianAktif ? (
-              <div>
-                {/* Nama Ujian */}
-                <h3 className="text-lg font-bold text-purple-600 mb-2">
-                  {ujianAktif.deskripsi}
-                </h3>
-
-                {/* Detail Ujian */}
-                <div className="text-gray-700 text-sm space-y-2">
-                  <p className="flex items-center gap-2">
-                    <HiOutlineCalendar className="text-lg text-gray-500" />
-                    <span className="font-medium">Tanggal:</span>{" "}
-                    {ujianAktif.tanggal}
-                  </p>
-                  <p className="flex items-center gap-2">
-                    <HiOutlineClock className="text-lg text-gray-500" />
-                    <span className="font-medium">Waktu:</span>{" "}
-                    {ujianAktif.jamMulai} - {ujianAktif.jamAkhir}
-                  </p>
-                  <p className="flex items-center gap-2">
-                    <HiOutlineUserGroup className="text-lg text-gray-500" />
-                    <span className="font-medium">Peserta:</span>{" "}
-                    {ujianAktif.totalJoin}
-                  </p>
+          <div className="bg-white shadow-md rounded-lg p-4">
+            {ujianAktif && ujianAktif.length > 0 ? (
+              ujianAktif.map((ujian, index) => (
+                <div key={index} className="bg-green-50 rounded-lg mb-4 p-4">
+                  {/* Nama Ujian */}
+                  <h3 className="text-lg font-bold text-purple-600 mb-2">
+                    {ujian.deskripsi}
+                  </h3>
+                  {/* Detail Ujian */}
+                  <div className="text-gray-700 text-sm space-y-2">
+                    <p className="flex items-center gap-2">
+                      <HiOutlineCalendar className="text-lg text-gray-500" />
+                      <span className="font-medium">Tanggal:</span>{" "}
+                      {ujian.tanggal}
+                    </p>
+                    <p className="flex items-center gap-2">
+                      <HiOutlineClock className="text-lg text-gray-500" />
+                      <span className="font-medium">Waktu:</span>{" "}
+                      {ujian.jamMulai} - {ujian.jamAkhir}
+                    </p>
+                    <p className="flex items-center gap-2">
+                      <HiOutlineUserGroup className="text-lg text-gray-500" />
+                      <span className="font-medium">Peserta:</span>{" "}
+                      {ujian.totalJoin}
+                    </p>
+                  </div>
+                  <hr className="mt-4 border-gray-200" />
+                  {/* Badge Status */}
+                  <div className="flex items-center justify-center mt-4">
+                    <span
+                      className={`flex items-center gap-2 px-4 py-1 rounded-full text-xs font-semibold uppercase tracking-wide ${
+                        ujian.statusUjian === "ongoing"
+                          ? "bg-green-200 text-green-800"
+                          : ujian.statusUjian === "upcoming"
+                          ? "bg-yellow-200 text-yellow-800"
+                          : "bg-red-200 text-red-800"
+                      }`}
+                    >
+                      {ujian.statusUjian === "ongoing" ? (
+                        <>
+                          <span className="w-2 h-2 bg-green-600 rounded-full animate-pulse"></span>
+                          Sedang Berlangsung
+                        </>
+                      ) : ujian.statusUjian === "upcoming" ? (
+                        <>
+                          <span className="w-2 h-2 bg-yellow-600 rounded-full animate-pulse"></span>
+                          Akan Datang
+                        </>
+                      ) : (
+                        <>
+                          <span className="w-2 h-2 bg-red-600 rounded-full"></span>
+                          Selesai
+                        </>
+                      )}
+                    </span>
+                  </div>
                 </div>
-                <hr className="mt-4 border-gray-200" />
-                {/* Badge Status */}
-                <div className="flex items-center justify-center mt-4">
-                  <span
-                    className={`flex items-center gap-2 px-4 py-1 rounded-full text-xs font-semibold uppercase tracking-wide ${
-                      ujianAktif.statusUjian === "ongoing"
-                        ? "bg-green-200 text-green-800"
-                        : ujianAktif.statusUjian === "upcoming"
-                        ? "bg-yellow-200 text-yellow-800"
-                        : "bg-red-200 text-red-800"
-                    }`}
-                  >
-                    {ujianAktif.statusUjian === "ongoing" ? (
-                      <>
-                        <span className="w-2 h-2 bg-green-600 rounded-full animate-pulse"></span>
-                        Sedang Berlangsung
-                      </>
-                    ) : ujianAktif.statusUjian === "upcoming" ? (
-                      <>
-                        <span className="w-2 h-2 bg-yellow-600 rounded-full animate-pulse"></span>
-                        Akan Datang
-                      </>
-                    ) : (
-                      <>
-                        <span className="w-2 h-2 bg-red-600 rounded-full"></span>
-                        Selesai
-                      </>
-                    )}
-                  </span>
-                </div>
-              </div>
+              ))
             ) : (
               <div className="text-center p-6 flex flex-col items-center">
                 <HiOutlineCalendar className="text-gray-400 text-7xl mb-4" />

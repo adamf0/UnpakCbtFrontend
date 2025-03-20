@@ -10,7 +10,7 @@ import UjianAdmin from "./pages/admin/UjianAdmin";
 import UjianAdminTambah from "./pages/admin/UjianAdminTambah";
 import UjianAdminEdit from "./pages/admin/UjianAdminEdit";
 import TemplateSoal from "./pages/admin/TemplateSoal";
-import MabaDashboard from "./pages/user/Dashboard";
+// import MabaDashboard from "./pages/user/Dashboard";
 import UjianMaba from "./pages/user/Ujian";
 import UjianMabaDetail from "./pages/user/UjianDetail";
 import SoalUjian from "./pages/user/SoalUjian";
@@ -44,8 +44,8 @@ function AppRoutes() {
 
       {/* Maba Routes */}
       <Route path="/maba" element={<MabaLayout />}>
-        <Route path="dashboard" element={<MabaDashboard />} />
-        <Route path="ujian" element={<UjianMaba />} />
+        {/* <Route path="dashboard" element={<MabaDashboard />} /> */}
+        <Route path=":uuid/:noReg" element={<UjianMaba />} />
         <Route path="ujian/:uuid" element={<UjianMabaDetail />} />
         <Route path="/maba/ujian/:uuid/tipe/:tipe" element={<SoalUjian />} />
 
