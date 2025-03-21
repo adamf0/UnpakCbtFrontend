@@ -1,6 +1,6 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
-// Import Layouts
+// Import Pages
 import Login from "./pages/Login";
 import AdminDashboard from "./pages/admin/Dashboard";
 import BankSoal from "./pages/admin/BankSoal";
@@ -9,19 +9,27 @@ import BankSoalEdit from "./pages/admin/BankSoalEdit";
 import UjianAdmin from "./pages/admin/UjianAdmin";
 import UjianAdminTambah from "./pages/admin/UjianAdminTambah";
 import UjianAdminEdit from "./pages/admin/UjianAdminEdit";
-import MabaDashboard from "./pages/user/Dashboard";
+import TemplateSoal from "./pages/admin/TemplateSoal";
+// import MabaDashboard from "./pages/user/Dashboard";
+import UjianMaba from "./pages/user/Ujian";
+import UjianMabaDetail from "./pages/user/UjianDetail";
+import SoalUjian from "./pages/user/SoalUjian";
+
+// Import Layouts
 import AdminLayout from "./layouts/AdminLayout";
 import MabaLayout from "./layouts/MabaLayout";
-import TemplateSoal from "./pages/admin/TemplateSoal";
+
+// Import PrivateRoute Component
+import PrivateRoute from "./components/PrivateRoute";
 
 function AppRoutes() {
   return (
-    <Router>
-      <Routes>
-        {/* Login */}
-        <Route path="/" element={<Login />} />
+    <Routes>
+      {/* Public Route */}
+      <Route path="/" element={<Login />} />
 
-        {/* Admin Routes */}
+      {/* Protected Admin Routes */}
+      <Route element={<PrivateRoute />}>
         <Route path="/admin" element={<AdminLayout />}>
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="bank-soal" element={<BankSoal />} />
@@ -32,17 +40,22 @@ function AppRoutes() {
           <Route path="ujian/tambah" element={<UjianAdminTambah />} />
           <Route path="ujian/edit/:uuid" element={<UjianAdminEdit />} />
         </Route>
+      </Route>
 
-        {/* Maba Routes */}
-        <Route path="/maba" element={<MabaLayout />}>
-          <Route path="dashboard" element={<MabaDashboard />} />
-          {/* <Route path="ujian/:id" element={<UjianMaba />} /> */}
-        </Route>
+      {/* Maba Routes */}
+      <Route path="/maba" element={<MabaLayout />}>
+        {/* <Route path="dashboard" element={<MabaDashboard />} /> */}
+        <Route path=":uuid/:noReg" element={<UjianMaba />} />
+        <Route path="ujian/:uuid" element={<UjianMabaDetail />} />
+        <Route path="/maba/ujian/:uuid/tipe/:tipe" element={<SoalUjian />} />
 
-        {/* 404 Not Found */}
-        {/* <Route path="*" element={<NotFound />} /> */}
-      </Routes>
-    </Router>
+
+        {/* Other Maba routes */}
+      </Route>
+
+      {/* 404 Not Found */}
+      {/* <Route path="*" element={<NotFound />} /> */}
+    </Routes>
   );
 }
 

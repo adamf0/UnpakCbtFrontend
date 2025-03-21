@@ -26,15 +26,16 @@ const BankSoalEdit = () => {
     axios
       .get(`/api/BankSoal/${uuid}`)
       .then((response) => {
+        console.log("Data Bank Soal Diterima:", response.data); // Debugging log
         const data = response.data;
         setJudul(data.judul || "");
 
         // Jika tidak ada data rule, biarkan kosong untuk ditambahkan baru
         if (data.rule) {
           const ruleData = JSON.parse(data.rule);
-          setFakultas(ruleData.fakultas?.map((f) => f.kode) || []);
-          setProdi(ruleData.prodi?.map((p) => p.kode) || []);
-          setJenjang(ruleData.jenjang?.map((j) => j.kode) || []);
+          setFakultas(ruleData.fakultas?.map((f) => f.value) || []);
+          setProdi(ruleData.prodi?.map((p) => p.value) || []);
+          setJenjang(ruleData.jenjang?.map((j) => j.value) || []);
         }
 
         setError(null); // Reset error jika data ditemukan

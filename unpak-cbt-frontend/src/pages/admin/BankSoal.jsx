@@ -83,8 +83,8 @@ const BankSoal = () => {
     }
   };
 
-  const handleNavigate = (uuid) => {
-    navigate("/admin/bank-soal/template", { state: { uuid } });
+  const handleNavigate = (uuid, judul) => {
+    navigate("/admin/bank-soal/template", { state: { uuid, judul } });
   };
 
   const handleConfirmDelete = (uuid, judul, event) => {
@@ -226,7 +226,7 @@ const BankSoal = () => {
                         className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                         onClick={(event) => {
                           event.stopPropagation();
-                          handleNavigate(item.uuid);
+                          handleNavigate(item.uuid, item.judul);
                         }}
                       >
                         Template Soal

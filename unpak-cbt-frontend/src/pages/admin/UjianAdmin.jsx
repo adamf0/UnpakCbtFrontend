@@ -22,6 +22,7 @@ const UjianAdmin = () => {
       .get("/api/JadwalUjian")
       .then(async (response) => {
         const jadwal = response.data;
+        console.log("Data fetched:", jadwal);
         setData(jadwal);
 
         // Filter hanya yang memiliki uuidBankSoal

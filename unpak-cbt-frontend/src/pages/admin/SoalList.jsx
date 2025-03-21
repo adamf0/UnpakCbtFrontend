@@ -36,8 +36,12 @@ const SoalList = ({ soalList, fetchSoalList }) => {
   const [jawabanImg, setJawabanImg] = useState(null);
   const [jawabanPreview, setJawabanPreview] = useState(null);
 
+  const tipeUrutan = ["TPA", "BI", "MTK"];
+
   // Mendapatkan tipe soal unik dari data API
-  const uniqueTypes = [...new Set(soalList.map((soal) => soal.tipe))];
+  const uniqueTypes = tipeUrutan.filter((tipe) =>
+    soalList.some((soal) => soal.tipe === tipe)
+  );
 
   const typeMapping = {
     BI: "Bahasa Inggris",
@@ -45,7 +49,9 @@ const SoalList = ({ soalList, fetchSoalList }) => {
   };
 
   // Filter soal berdasarkan tab yang dipilih
-  const filteredSoalList = soalList.filter((soal) => soal.tipe === activeTab);
+  const filteredSoalList = soalList
+    .filter((soal) => soal.tipe === activeTab)
+    .sort((a, b) => a.uuid.localeCompare(b.uuid));
 
   // Fetch detail soal
   const fetchDetailSoal = async (id) => {
@@ -227,6 +233,9 @@ const SoalList = ({ soalList, fetchSoalList }) => {
     if (detailSoal?.uuidJawabanBenar) {
       setSelectedJawabanBenar(detailSoal.uuidJawabanBenar);
     }
+    if (detailSoal?.uuid) {
+      fetchListJawaban(detailSoal.uuid);
+    }
   }, [detailSoal]);
 
   return (
@@ -234,15 +243,24 @@ const SoalList = ({ soalList, fetchSoalList }) => {
       <h2 className="text-lg font-semibold mb-4">Daftar Soal</h2>
 
       {/* Tabs */}
-      <div className="border-b-2 border-gray-200 flex space-x-4 mb-4">
+      <div className="flex mb-4 border-b-2 border-gray-200 overflow-x-auto no-scrollbar">
         {uniqueTypes.map((type) => (
           <button
             key={type}
-            onClick={() => setActiveTab(type)}
-            className={`py-2 px-4 text-sm font-semibold border-b-2 transition ${
+            onClick={() => {
+              setActiveTab(type);
+              setSelectedSoal(null);
+              setDetailSoal(null);
+              setListJawaban([]);
+              setPertanyaanInput("");
+              setBobotInput("");
+              setGambarPreview(null);
+              setSelectedJawabanBenar(null);
+            }}
+            className={`py-3 px-5 text-sm font-semibold transition-all rounded-t-md ${
               activeTab === type
-                ? "border-purple-500 text-purple-600"
-                : "border-transparent text-gray-500 hover:text-purple-600"
+                ? "border-b-4 border-purple-500 text-purple-600 bg-purple-100"
+                : "border-transparent border-b-4 text-gray-500 hover:text-purple-600 hover:bg-gray-100"
             }`}
           >
             {typeMapping[type] || type}
@@ -298,16 +316,6 @@ const SoalList = ({ soalList, fetchSoalList }) => {
                 </div>
               )}
 
-              {/* <span
-                className={`inline-block mt-2 px-2 py-1 text-xs font-semibold rounded-full ${
-                  detailSoal.state === "init"
-                    ? "bg-yellow-100 text-yellow-700"
-                    : "bg-green-100 text-green-700"
-                }`}
-              >
-                {detailSoal.state}
-              </span> */}
-
               <hr className="border border-gray-200" />
 
               <div className="flex justify-between align-center my-4">
@@ -325,42 +333,46 @@ const SoalList = ({ soalList, fetchSoalList }) => {
                 </Button>
               </div>
 
-              {listJawaban.length > 0 ? (
-                <ul className="mt-2 space-y-2">
-                  {listJawaban.map((jawaban) => (
-                    <li
-                      key={jawaban.uuid}
-                      className="p-2 px-4 border border-gray-200 rounded-lg bg-gray-50 flex items-center justify-between"
-                    >
-                      <div className="flex items-center">
-                        <input
-                          type="checkbox"
-                          checked={selectedJawabanBenar === jawaban.uuid}
-                          onChange={() =>
-                            handleSelectCorrectAnswer(jawaban.uuid)
-                          }
-                          className="mr-2 w-6 h-6 appearance-none border-2 border-gray-300 rounded-md checked:bg-purple-600 checked:border-purple-600 checked:ring-2 checked:ring-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        />
-                        <p className="text-gray-800">{jawaban.jawabanText}</p>
-                        {jawaban.jawabanImg && (
-                          <img
-                            src={`/uploads/${jawaban.jawabanImg}`}
-                            alt="Jawaban"
-                            className="w-16 h-16 object-cover rounded-md ml-2"
-                          />
-                        )}
-                      </div>
+              <div className="mb-3 text-red-600 italic">
+                Ceklis untuk menentukan jawaban benar
+              </div>
 
-                      {/* Tombol Hapus */}
+              {listJawaban.length > 0 ? (
+                <div className="mt-2 space-y-2">
+                  {listJawaban.map((jawaban) => (
+                    <label
+                      key={jawaban.uuid}
+                      className={`flex items-center gap-3 cursor-pointer border p-3 rounded-lg hover:bg-gray-50 ${
+                        selectedJawabanBenar === jawaban.uuid
+                          ? "border-purple-400 bg-purple-50"
+                          : "border-gray-200"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        className="form-radio text-purple-500"
+                        checked={selectedJawabanBenar === jawaban.uuid}
+                        onChange={() => handleSelectCorrectAnswer(jawaban.uuid)}
+                      />
+
+                      <p className="text-gray-800">{jawaban.jawabanText}</p>
+                      {jawaban.jawabanImg && (
+                        <img
+                          src={`/uploads/${jawaban.jawabanImg}`}
+                          alt="Jawaban"
+                          className="w-16 h-16 object-cover rounded-md ml-2"
+                        />
+                      )}
+
                       <button
                         onClick={() => handleConfirmDeleteJawaban(jawaban)}
-                        className="bg-red-300 text-white px-2 py-1 text-xs rounded-md hover:bg-red-600 transition"
+                        className="ms-auto bg-red-300 text-white px-2 py-1 text-xs rounded-md hover:bg-red-600 transition"
                       >
                         X
                       </button>
-                    </li>
+                    </label>
                   ))}
-                </ul>
+                </div>
               ) : (
                 <p className="text-gray-500 mt-2">Belum ada jawaban.</p>
               )}
@@ -389,8 +401,13 @@ const SoalList = ({ soalList, fetchSoalList }) => {
                   onClick={() => {
                     fetchDetailSoal(soal.uuid);
                     fetchListJawaban(soal.uuid);
+                    setSelectedSoal(soal);
                   }}
-                  className="relative border border-gray-200 rounded-lg shadow-sm bg-gray-50 flex items-center justify-center text-lg font-bold text-gray-700 cursor-pointer hover:bg-purple-200 hover:border-purple-600 transition aspect-square"
+                  className={`relative border border-gray-200 rounded-lg shadow-sm bg-gray-50 flex items-center justify-center text-lg font-bold text-gray-700 cursor-pointer hover:bg-purple-200 hover:border-purple-600 transition aspect-square ${
+                    selectedSoal?.uuid === soal.uuid
+                      ? "bg-purple-200 border-purple-600"
+                      : ""
+                  }`}
                 >
                   {/* Tombol Hapus di Pojok Kanan Atas */}
                   <button
@@ -412,16 +429,16 @@ const SoalList = ({ soalList, fetchSoalList }) => {
 
           {/* Tombol Simpan & Simpan Permanen */}
           <div className="mt-4 flex space-x-2">
-            <Button onClick={handleSave} className="w-full" variant="success">
-              Simpan
+            <Button onClick={handleSave} className="w-full" variant="primary">
+              Update & Simpan 
             </Button>
-            <Button
+            {/* <Button
               onClick={() => console.log("Simpan data semua")}
               className="w-full"
               variant="primary"
             >
               Selesai
-            </Button>
+            </Button> */}
           </div>
         </div>
       </div>

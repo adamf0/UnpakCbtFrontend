@@ -7,6 +7,7 @@ import SoalList from "./SoalList";
 const TemplateSoal = () => {
   const location = useLocation();
   const uuid = location.state?.uuid;
+  const judul = location.state?.judul;
   const [soalList, setSoalList] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -15,7 +16,7 @@ const TemplateSoal = () => {
   const fetchSoalList = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`/api/TemplatePertanyaan/BankSoal/${uuid}`);
+      const response = await axios.get(`/api/TemplatePertanyaan/BankSoal/${uuid}?IdBankSoal=${uuid}`);
       setSoalList(response.data);
     } catch (error) {
       console.error("Error fetching template soal:", error);
@@ -38,7 +39,7 @@ const TemplateSoal = () => {
         >
           Bank Soal
         </Link>{" "}
-        /<span className="text-gray-500"> Template Soal</span>
+        /<span className="text-gray-500"> Template Soal ({judul})</span>
       </nav>
 
       <div className="grid grid-cols-1 gap-2">
