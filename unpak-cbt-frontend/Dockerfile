@@ -2,8 +2,8 @@
 FROM ubuntu:latest AS base
 
 # Perbarui package list, upgrade semua package, install curl, lalu bersihkan cache
-RUN apt update && apt upgrade -y && apt install -y curl ca-certificates && \
-    rm -rf /var/lib/apt/lists/*
+RUN apt-get clean && apt-get update && apt-get upgrade -y && apt-get install -y \
+    curl ca-certificates && rm -rf /var/lib/apt/lists/*
 
 # Tambahkan repository NodeSource dan instal Node.js 22.13.1 secara spesifik
 RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
