@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Input from "../../components/Input";
 import Button from "../../components/Button";
 import Select from "../../components/Select";
-import axios from "axios";
+import { apiProduction, apiSelectProduction } from "@src/Constant"
 
 const UjianAdminTambah = () => {
   const [deskripsi, setDeskripsi] = useState("");
@@ -19,7 +19,7 @@ const UjianAdminTambah = () => {
   useEffect(() => {
     const fetchBankSoal = async () => {
       try {
-        const response = await axios.get("/api/BankSoal");
+        const response = await apiProduction.get("/api/BankSoal");
         const activeBankSoal = response.data.filter(
           (item) => item.status === "active"
         );
@@ -37,7 +37,7 @@ const UjianAdminTambah = () => {
     setLoading(true);
 
     try {
-      await axios.post("/api/JadwalUjian", {
+      await apiProduction.post("/api/JadwalUjian", {
         deskripsi,
         kouta,
         tanggal,

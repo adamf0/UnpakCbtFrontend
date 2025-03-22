@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Input from "../../components/Input";
 import Button from "../../components/Button";
 import Select from "../../components/Select";
-import axios from "axios";
+import { apiProduction, apiSelectProduction } from "@src/Constant"
 
 const BankSoalTambah = () => {
   const [judul, setJudul] = useState("");
@@ -22,7 +22,7 @@ const BankSoalTambah = () => {
   useEffect(() => {
     const fetchFakultas = async () => {
       try {
-        const response = await axios.get("/select2/list_fakultas");
+        const response = await apiSelectProduction.get("/select2/list_fakultas");
         const fakultasOptions = response.data.map((item) => ({
           value: item.id, // Sesuai dengan struktur API
           label: item.text, // Menampilkan label Fakultas
@@ -39,7 +39,7 @@ const BankSoalTambah = () => {
   useEffect(() => {
     const fetchJenjang = async () => {
       try {
-        const response = await axios.get("/select2/list_jenjang");
+        const response = await apiSelectProduction.get("/select2/list_jenjang");
         const jenjangOptions = response.data.map((item) => ({
           value: item.id, // Sesuai dengan struktur API
           label: item.text, // Menampilkan label Jenjang
@@ -59,7 +59,7 @@ const BankSoalTambah = () => {
         try {
           const responses = await Promise.all(
             fakultas.map((fak) =>
-              axios.get(`/select2/list_prodi/${fak}`)
+              apiSelectProduction.get(`/select2/list_prodi/${fak}`)
             )
           );
           const prodiOptions = responses
@@ -91,7 +91,7 @@ const BankSoalTambah = () => {
     });
 
     try {
-      const response = await axios.post("/api/BankSoal", {
+      const response = await apiProduction.post("/api/BankSoal", {
         judul,
         rule,
       });

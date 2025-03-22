@@ -1,9 +1,10 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { apiProduction, baseUrl } from "@src/Constant"
 import NavbarMaba from "../../components/NavbarMaba";
 import Button from "../../components/Button";
 import LoadingScreen from "../../components/LoadingScreen";
+import logo from "@assets/images/logo-unpak.png"
 
 const SoalUjian = () => {
   const { uuid, tipe } = useParams();
@@ -23,16 +24,18 @@ const SoalUjian = () => {
     const storedData = sessionStorage.getItem("examData");
     return storedData ? JSON.parse(storedData) : null;
   });
+  const version = process.env.VITE_NODE_ENV;
+  const isProduction = version=="production";
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const jadwal = (
-          await axios.get(`/api/JadwalUjian/${examData?.idJadwalUjian}`)
+          await apiProduction.get(`/api/JadwalUjian/${examData?.idJadwalUjian}`)
         ).data;
 
         const soalResponse = (
-          await axios.get(
+          await apiProduction.get(
             `/api/TemplatePertanyaan/BankSoal/${jadwal.uuidBankSoal}?IdBankSoal=${jadwal.uuidBankSoal}`
           )
         ).data;
@@ -45,7 +48,7 @@ const SoalUjian = () => {
 
         console.log("Soal:", filtered);
 
-        const jawabanRes = await axios.get(
+        const jawabanRes = await apiProduction.get(
           `/api/TemplateJawaban/BankSoal/${jadwal.uuidBankSoal}`
         );
         setJawaban(jawabanRes.data);
@@ -85,7 +88,7 @@ const SoalUjian = () => {
 
   const fetchAnsweredQuestions = async () => {
     try {
-      const response = await axios.get(`/api/Ujian/Cbt/${examData.idUjian}`);
+      const response = await apiProduction.get(`/api/Ujian/Cbt/${examData.idUjian}`);
       const answeredMap = new Map();
 
       response.data.forEach((item) => {
@@ -135,7 +138,7 @@ const SoalUjian = () => {
     };
 
     try {
-      await axios.put("/api/Ujian/Cbt", payload, {
+      await apiProduction.put("/api/Ujian/Cbt", payload, {
         headers: { "Content-Type": "application/json" },
       });
 
@@ -161,15 +164,15 @@ const SoalUjian = () => {
         e.preventDefault();
       }
       // Ctrl+Shift+I
-      if (e.ctrlKey && e.shiftKey && e.keyCode === 73) {
+      if (isProduction && e.ctrlKey && e.shiftKey && e.keyCode === 73) {
         e.preventDefault();
       }
       // Ctrl+Shift+J
-      if (e.ctrlKey && e.shiftKey && e.keyCode === 74) {
+      if (isProduction && e.ctrlKey && e.shiftKey && e.keyCode === 74) {
         e.preventDefault();
       }
       // Ctrl+U (biasanya untuk melihat source code)
-      if (e.ctrlKey && e.keyCode === 85) {
+      if (isProduction && e.ctrlKey && e.keyCode === 85) {
         e.preventDefault();
       }
     };
@@ -194,7 +197,7 @@ const SoalUjian = () => {
           ← Kembali
         </Button>
         <img
-          src="/src/assets/images/logo-unpak.png"
+          src={logo}
           alt="Logo"
           className="h-10 w-auto"
         />
@@ -242,7 +245,7 @@ const SoalUjian = () => {
                       </h1>
                       {pertanyaan[currentIndex].gambar && (
                         <img
-                          src={`/uploads/${pertanyaan[currentIndex].gambar}`}
+                          src={`${baseUrl}/api/uploads/${pertanyaan[currentIndex].gambar}`}
                           alt="soal"
                           className="rounded-lg max-h-64 object-cover"
                         />
@@ -280,7 +283,7 @@ const SoalUjian = () => {
 
                         {jwb.jawabanImg && (
                           <img
-                            src={`/uploads/${jwb.jawabanImg}`}
+                            src={`${baseUrl}/api/uploads/${jwb.jawabanImg}`}
                             alt="Jawaban"
                             className="h-12 w-auto object-cover"
                           />

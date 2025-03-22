@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import { apiProduction, apiSelectProduction } from "@src/Constant"
 import Select from "../../components/Select";
 import Button from "../../components/Button";
 import { FaPlus } from "react-icons/fa";
@@ -32,7 +32,7 @@ const SoalForm = ({ uuid, fetchSoalList }) => {
       formData.append("idBankSoal", uuid);
       formData.append("tipe", tipeSoal);
 
-      const response = await axios.post("/api/TemplatePertanyaan", formData, {
+      const response = await apiProduction.post("/api/TemplatePertanyaan", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

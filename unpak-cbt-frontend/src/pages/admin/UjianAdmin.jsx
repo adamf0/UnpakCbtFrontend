@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import axios from "axios";
+import { apiProduction, apiSelectProduction } from "@src/Constant"
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { FaPlus } from "react-icons/fa";
 import { CiTimer, CiCalendarDate, CiDesktop } from "react-icons/ci";
@@ -18,7 +18,7 @@ const UjianAdmin = () => {
 
   useEffect(() => {
     // Fetch jadwal ujian
-    axios
+    apiProduction
       .get("/api/JadwalUjian")
       .then(async (response) => {
         const jadwal = response.data;
@@ -32,7 +32,7 @@ const UjianAdmin = () => {
 
         // Fetch semua judul bank soal secara paralel
         const bankSoalPromises = bankSoalIds.map((id) =>
-          axios.get(`/api/BankSoal/${id}`).then((res) => ({
+          apiProduction.get(`/api/BankSoal/${id}`).then((res) => ({
             id,
             judul: res.data.judul, // Sesuaikan dengan struktur response API
           }))
@@ -86,7 +86,7 @@ const UjianAdmin = () => {
 
   const handleDelete = async () => {
     try {
-      await axios.delete(`/api/JadwalUjian/${selectedUUID}`);
+      await apiProduction.delete(`/api/JadwalUjian/${selectedUUID}`);
       setData((prevData) =>
         prevData.filter((item) => item.uuid !== selectedUUID)
       );

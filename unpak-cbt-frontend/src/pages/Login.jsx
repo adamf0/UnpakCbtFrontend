@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import Button from "../components/Button";
 import Input from "../components/Input";
-
+import logo from "@assets/images/logo-unpak.png";
 import { useAuth } from "../context/authContext";
-import axios from "axios";
+import { apiProduction, apiSelectProduction } from "@src/Constant"
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -17,7 +17,7 @@ const Login = () => {
     setError(null);
 
     try {
-      const response = await axios.post("/api/Authentication", {
+      const response = await apiProduction.post("/api/Authentication", {
         username,
         password,
       });
@@ -41,7 +41,7 @@ const Login = () => {
         {/* Logo & Heading */}
         <div className="flex justify-center mb-4">
           <img
-            src="/src/assets/images/logo-unpak.png"
+            src={logo}
             alt="Logo"
             className="h-16"
           />

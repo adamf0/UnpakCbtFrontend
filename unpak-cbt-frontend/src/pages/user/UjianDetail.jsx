@@ -2,7 +2,7 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import NavbarMaba from "../../components/NavbarMaba";
 import Button from "../../components/Button";
-import axios from "axios";
+import { apiProduction, apiSelectProduction } from "@src/Constant"
 import {
   FaBrain,
   FaSquareRootAlt,
@@ -10,6 +10,7 @@ import {
   FaTimesCircle,
 } from "react-icons/fa";
 import LoadingScreen from "../../components/LoadingScreen";
+import logo from "@assets/images/logo-unpak.png"
 
 const styleMap = {
   TPA: {
@@ -69,13 +70,13 @@ const UjianMabaDetail = () => {
     const fetchData = async () => {
       try {
         // Ambil jadwal ujian
-        const jadwalResponse = await axios.get(
+        const jadwalResponse = await apiProduction.get(
           `/api/JadwalUjian/${examData?.idJadwalUjian}`
         );
         setJadwalUjian(jadwalResponse.data);
 
         // Ambil pertanyaan dan langsung kelompokkan berdasarkan tipe
-        const pertanyaanResponse = await axios.get(
+        const pertanyaanResponse = await apiProduction.get(
           `/api/TemplatePertanyaan/BankSoal/${jadwalResponse.data.uuidBankSoal}?IdBankSoal=${jadwalResponse.data.uuidBankSoal}`
         );
 
@@ -85,7 +86,7 @@ const UjianMabaDetail = () => {
         }, {});
         setGroupedPertanyaan(grouped);
 
-        const jawabanResponse = await axios.get(
+        const jawabanResponse = await apiProduction.get(
           `/api/Ujian/Cbt/${examData.idUjian}`
         );
 
@@ -158,7 +159,7 @@ const UjianMabaDetail = () => {
     }
 
     try {
-      await axios.put(`/api/Ujian/Done`, {
+      await apiProduction.put(`/api/Ujian/Done`, {
         id: examData.idUjian,
         noReg: examData.noReg,
       });
@@ -182,7 +183,7 @@ const UjianMabaDetail = () => {
           ← Kembali
         </Button>
         <img
-          src="/src/assets/images/logo-unpak.png"
+          src={logo}
           alt="Logo"
           className="h-10 w-auto"
         />

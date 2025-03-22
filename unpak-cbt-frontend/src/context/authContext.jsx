@@ -1,6 +1,6 @@
 import { createContext, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import { apiProduction, apiSelectProduction } from "@src/Constant"
 
 const AuthContext = createContext();
 
@@ -23,7 +23,7 @@ export const AuthProvider = ({ children }) => {
     navigate("/");
   };
 
-  axios.interceptors.request.use((config) => {
+  apiProduction.interceptors.request.use((config) => {
     const token = localStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -31,7 +31,7 @@ export const AuthProvider = ({ children }) => {
     return config;
   });
 
-  axios.interceptors.response.use(
+  apiProduction.interceptors.response.use(
     (response) => response,
     (error) => {
       if (error.response && error.response.status === 401) {

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import axios from "axios";
+import { apiProduction, apiSelectProduction } from "@src/Constant"
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { CiCalendarDate, CiViewList } from "react-icons/ci";
 import { FaPlus } from "react-icons/fa";
@@ -19,7 +19,7 @@ const BankSoal = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios
+    apiProduction
       .get("/api/BankSoal")
       .then((response) => {
         setData(response.data);
@@ -61,7 +61,7 @@ const BankSoal = () => {
     setLoadingStatus(uuid); // Mulai loading untuk item ini
 
     try {
-      await axios.put("/api/BankSoal/status", {
+      await apiProduction.put("/api/BankSoal/status", {
         id: uuid,
         status: newStatus,
       });
@@ -97,7 +97,7 @@ const BankSoal = () => {
 
   const handleDelete = async () => {
     try {
-      await axios.delete(`/api/BankSoal/${selectedUUID}`);
+      await apiProduction.delete(`/api/BankSoal/${selectedUUID}`);
       setData((prevData) =>
         prevData.filter((item) => item.uuid !== selectedUUID)
       );

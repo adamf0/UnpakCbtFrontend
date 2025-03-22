@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import axios from "axios";
+import { apiProduction, apiSelectProduction } from "@src/Constant"
 import LoadingScreen from "../../components/LoadingScreen";
+import logo from "@assets/images/logo-unpak.png"
 
 const UjianMaba = () => {
   const { uuid, noReg } = useParams();
@@ -20,12 +21,12 @@ const UjianMaba = () => {
       if (!uuid || !noReg) return;
 
       try {
-        const response = await axios.get(`/api/Ujian/${uuid}/${noReg}`);
+        const response = await apiProduction.get(`/api/Ujian/${uuid}/${noReg}`);
         setDataUjian(response.data);
         console.log("Data Ujian:", response.data);
 
         if (response.data.uuidJadwalUjian) {
-          const jadwalResponse = await axios.get(
+          const jadwalResponse = await apiProduction.get(
             `/api/JadwalUjian/${response.data.uuidJadwalUjian}`
           );
           setJadwal(jadwalResponse.data);
@@ -102,7 +103,7 @@ const UjianMaba = () => {
           noReg: dataUjian.noReg,
         };
 
-        await axios.put(`/api/Ujian/Start`, payload, {
+        await apiProduction.put(`/api/Ujian/Start`, payload, {
           headers: { "Content-Type": "application/json" },
         });
 
@@ -142,7 +143,7 @@ const UjianMaba = () => {
       <div className="flex bg-purple-400 flex-col items-center justify-center min-h-[100vh] px-4 py-4">
         <div className="flex justify-center mb-4">
           <img
-            src="/src/assets/images/logo-unpak.png"
+            src={logo}
             alt="Logo"
             className="h-24"
           />

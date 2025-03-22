@@ -1,4 +1,5 @@
 import PulseLoader from "react-spinners/PulseLoader";
+import logo from "@assets/images/logo-unpak.png"
 
 const LoadingScreen = ({
   color = "#6366F1",
@@ -8,7 +9,7 @@ const LoadingScreen = ({
     <div className="flex flex-col justify-center items-center h-screen">
       <div className="flex justify-center mb-4">
         <img
-          src="/src/assets/images/logo-unpak.png"
+          src={logo}
           alt="Logo"
           className="h-24"
         />

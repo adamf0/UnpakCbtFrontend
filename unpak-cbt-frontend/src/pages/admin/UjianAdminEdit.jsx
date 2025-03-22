@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import Input from "../../components/Input";
 import Button from "../../components/Button";
 import Select from "../../components/Select";
-import axios from "axios";
+import { apiProduction, apiSelectProduction } from "@src/Constant"
 
 const UjianAdminEdit = () => {
   const { uuid } = useParams();
@@ -21,7 +21,7 @@ const UjianAdminEdit = () => {
   // Fetch Data Ujian untuk Edit
   useEffect(() => {
     setLoading(true);
-    axios
+    apiProduction
       .get(`/api/JadwalUjian/${uuid}`)
       .then((response) => {
         if (!response.data) {
@@ -51,7 +51,7 @@ const UjianAdminEdit = () => {
 
   // Fetch List Bank Soal
   useEffect(() => {
-    axios
+    apiProduction
       .get("/api/BankSoal")
       .then((response) => {
         const activeBankSoal = response.data
@@ -72,7 +72,7 @@ const UjianAdminEdit = () => {
     setLoading(true);
 
     try {
-      await axios.put("/api/JadwalUjian", {
+      await apiProduction.put("/api/JadwalUjian", {
         id: uuid,
         deskripsi,
         kouta,

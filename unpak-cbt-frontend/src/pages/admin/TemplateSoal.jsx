@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import axios from "axios";
+import { apiProduction, apiSelectProduction } from "@src/Constant"
 import SoalForm from "./SoalForm";
 import SoalList from "./SoalList";
 
@@ -16,7 +16,7 @@ const TemplateSoal = () => {
   const fetchSoalList = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`/api/TemplatePertanyaan/BankSoal/${uuid}?IdBankSoal=${uuid}`);
+      const response = await apiProduction.get(`/api/TemplatePertanyaan/BankSoal/${uuid}?IdBankSoal=${uuid}`);
       setSoalList(response.data);
     } catch (error) {
       console.error("Error fetching template soal:", error);

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { apiProduction, baseUrl } from "@src/Constant"
 import Modal from "../../components/Modal";
 import Button from "../../components/Button";
 import Input from "../../components/Input";
@@ -56,7 +56,7 @@ const SoalList = ({ soalList, fetchSoalList }) => {
   // Fetch detail soal
   const fetchDetailSoal = async (id) => {
     try {
-      const response = await axios.get(`/api/TemplatePertanyaan/${id}`);
+      const response = await apiProduction.get(`/api/TemplatePertanyaan/${id}`);
       setDetailSoal(response.data);
       console.log("Detail soal:", response.data);
 
@@ -64,7 +64,7 @@ const SoalList = ({ soalList, fetchSoalList }) => {
       setPertanyaanInput(response.data.pertanyaan || "");
       setBobotInput(response.data.bobot || "");
       setGambarPreview(
-        response.data.gambar ? `/uploads/${response.data.gambar}` : null
+        response.data.gambar ? `${baseUrl}/api/uploads/${response.data.gambar}` : null
       );
       setGambarInput(null);
     } catch (error) {
@@ -76,7 +76,7 @@ const SoalList = ({ soalList, fetchSoalList }) => {
   // Fetch daftar jawaban
   const fetchListJawaban = async (id) => {
     try {
-      const response = await axios.get("/api/TemplateJawaban");
+      const response = await apiProduction.get("/api/TemplateJawaban");
 
       // Filter jawaban hanya yang memiliki uuidTemplateSoal sama dengan id
       const filteredJawaban = response.data.filter(
@@ -111,7 +111,7 @@ const SoalList = ({ soalList, fetchSoalList }) => {
     if (!selectedJawaban) return;
 
     try {
-      await axios.delete(`/api/TemplateJawaban/${selectedJawaban.uuid}`);
+      await apiProduction.delete(`/api/TemplateJawaban/${selectedJawaban.uuid}`);
       // alert("Jawaban berhasil dihapus!");
       fetchListJawaban(detailSoal.uuid);
       setShowConfirmDeleteJawaban(false);
@@ -154,7 +154,7 @@ const SoalList = ({ soalList, fetchSoalList }) => {
         formData.append("jawabanImg", jawabanImg);
       }
 
-      await axios.post("/api/TemplateJawaban", formData, {
+      await apiProduction.post("/api/TemplateJawaban", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -178,7 +178,7 @@ const SoalList = ({ soalList, fetchSoalList }) => {
     if (!selectedSoal) return;
 
     try {
-      await axios.delete(`/api/TemplatePertanyaan/${selectedSoal.uuid}`);
+      await apiProduction.delete(`/api/TemplatePertanyaan/${selectedSoal.uuid}`);
 
       fetchSoalList();
       setShowConfirm(false);
@@ -217,7 +217,7 @@ const SoalList = ({ soalList, fetchSoalList }) => {
         formData.append("gambar", gambarInput);
       }
 
-      await axios.put("/api/TemplatePertanyaan", formData, {
+      await apiProduction.put("/api/TemplatePertanyaan", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -358,7 +358,7 @@ const SoalList = ({ soalList, fetchSoalList }) => {
                       <p className="text-gray-800">{jawaban.jawabanText}</p>
                       {jawaban.jawabanImg && (
                         <img
-                          src={`/uploads/${jawaban.jawabanImg}`}
+                          src={`${baseUrl}/api/uploads/${jawaban.jawabanImg}`}
                           alt="Jawaban"
                           className="w-16 h-16 object-cover rounded-md ml-2"
                         />

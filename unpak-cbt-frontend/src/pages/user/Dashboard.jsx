@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../../components/Button";
 import Input from "../../components/Input";
+import logo from "@assets/images/logo-unpak.png"
 
 const MabaDashboard = () => {
   const [npm, setNPM] = useState("");
@@ -23,7 +24,7 @@ const MabaDashboard = () => {
         {/* Logo & Heading */}
         <div className="flex justify-center mb-4">
           <img
-            src="/src/assets/images/logo-unpak.png"
+            src={logo}
             alt="Logo"
             className="h-16"
           />

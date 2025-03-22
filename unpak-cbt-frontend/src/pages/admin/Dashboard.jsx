@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import { apiProduction, apiSelectProduction } from "@src/Constant"
 import {
   HiOutlineCalendar,
   HiOutlineExclamationCircle,
@@ -26,7 +26,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchJadwalUjian = async () => {
       try {
-        const response = await axios.get("/api/JadwalUjian");
+        const response = await apiProduction.get("/api/JadwalUjian");
         const jadwal = response.data;
 
         setJadwalUjian(
@@ -42,7 +42,7 @@ const AdminDashboard = () => {
 
     const fetchUjianAktif = async () => {
       try {
-        const response = await axios.get("/api/JadwalUjian/active");
+        const response = await apiProduction.get("/api/JadwalUjian/active");
         console.log("Ujian Aktif:", response.data);
         // Pastikan response.data berupa array dan memiliki data
         if (Array.isArray(response.data) && response.data.length > 0) {
@@ -77,7 +77,7 @@ const AdminDashboard = () => {
   // Fetch laporan ujian setiap kali filter berubah
   const fetchLaporan = async (filters) => {
     try {
-      const response = await axios.post("/api/Laporan/lulus", filters);
+      const response = await apiProduction.post("/api/Laporan/lulus", filters);
       if (response.status === 200) {
         setLaporan(response.data);
         setIsEmptyData(false);

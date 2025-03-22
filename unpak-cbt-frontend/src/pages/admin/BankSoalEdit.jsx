@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import axios from "axios";
+import { apiProduction, apiSelectProduction } from "@src/Constant"
 import Input from "../../components/Input";
 import Button from "../../components/Button";
 import Select from "../../components/Select";
@@ -23,7 +23,7 @@ const BankSoalEdit = () => {
   // Fetch Data Bank Soal untuk Edit
   useEffect(() => {
     setLoading(true);
-    axios
+    apiProduction
       .get(`/api/BankSoal/${uuid}`)
       .then((response) => {
         console.log("Data Bank Soal Diterima:", response.data); // Debugging log
@@ -50,7 +50,7 @@ const BankSoalEdit = () => {
 
   // Fetch Fakultas
   useEffect(() => {
-    axios.get("/select2/list_fakultas").then((response) => {
+    apiSelectProduction.get("/select2/list_fakultas").then((response) => {
       setFakultasList(
         response.data.map((item) => ({
           value: item.id,
@@ -62,7 +62,7 @@ const BankSoalEdit = () => {
 
   // Fetch Jenjang
   useEffect(() => {
-    axios.get("/select2/list_jenjang").then((response) => {
+    apiSelectProduction.get("/select2/list_jenjang").then((response) => {
       setJenjangList(
         response.data.map((item) => ({
           value: item.id,
@@ -76,7 +76,7 @@ const BankSoalEdit = () => {
   useEffect(() => {
     if (fakultas.length > 0) {
       Promise.all(
-        fakultas.map((fak) => axios.get(`/select2/list_prodi/${fak}`))
+        fakultas.map((fak) => apiSelectProduction.get(`/select2/list_prodi/${fak}`))
       ).then((responses) => {
         const prodiOptions = responses
           .flatMap((response) => response.data)
@@ -103,7 +103,7 @@ const BankSoalEdit = () => {
     });
 
     try {
-      await axios.put("/api/BankSoal", {
+      await apiProduction.put("/api/BankSoal", {
         id: uuid,
         judul,
         rule,

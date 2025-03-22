@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { MdDashboard, MdAssignmentInd, MdBook } from "react-icons/md";
+import logo from "@assets/images/logo-unpak.png"
 
 const Sidebar = ({ isOpen, toggleSidebar, isCollapsed }) => {
   const location = useLocation();
@@ -14,7 +15,7 @@ const Sidebar = ({ isOpen, toggleSidebar, isCollapsed }) => {
       >
         {/* Sidebar Content */}
         <div className="flex items-center gap-3 mb-4">
-          <img src="/src/assets/images/logo-unpak.png" alt="Logo" className="w-11 h-11" />
+          <img src={logo} alt="Logo" className="w-11 h-11" />
           <span className={`text-xl font-bold whitespace-nowrap ${isCollapsed ? "hidden" : "block"}`}>
             UNPAK CBT
           </span>
