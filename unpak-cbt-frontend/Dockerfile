@@ -1,42 +1,32 @@
-# Gunakan Ubuntu terbaru sebagai base image
-FROM ubuntu:latest AS base
+# Gunakan image Node.js 22.13.1 dengan Alpine sebagai base image
+FROM node:22.13.1-alpine AS build
 
-# Perbarui package list, upgrade semua package, install curl, lalu bersihkan cache
-RUN apt-get clean && apt-get update && apt-get upgrade -y && apt-get install -y \
-    curl ca-certificates && rm -rf /var/lib/apt/lists/*
-
-# Tambahkan repository NodeSource dan instal Node.js 22.13.1 secara spesifik
-RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
-    apt install -y nodejs=22.13.1-1nodesource1 && \
-    apt clean && rm -rf /var/lib/apt/lists/*
-
-# Verifikasi versi Node.js & npm
-RUN node -v && npm -v
-
-# Tahap build aplikasi React
-FROM base AS builder
+# Set working directory
 WORKDIR /app
 
-# Salin package.json dan package-lock.json lalu install dependencies
-COPY package.json package-lock.json ./
-RUN npm install --omit=dev --no-cache
+# Salin file package.json dan package-lock.json (atau yarn.lock)
+COPY package*.json ./
 
-# Salin semua file dan build aplikasi
+# Install dependencies
+RUN npm install
+
+# Salin seluruh aplikasi ke dalam container
 COPY . .
+
+# Build aplikasi React
 RUN npm run build
 
-# Gunakan tahap runtime dengan Ubuntu ringan
-FROM base AS runtime
-WORKDIR /app
+# Gunakan image Node.js 22.13.1 Alpine untuk menjalankan aplikasi
+FROM node:22.13.1-alpine
 
-# Install 'serve' untuk menjalankan aplikasi React
-RUN npm install -g serve --omit=dev --no-cache
+# Install serve, untuk menjalankan build React secara langsung
+RUN npm install -g serve
 
-# Salin hasil build dari tahap builder
-COPY --from=builder /app/build /app/build
+# Salin hasil build dari tahap sebelumnya
+COPY --from=build /app/build /build
 
-# Expose port 3000
+# Expose port yang akan digunakan
 EXPOSE 3000
 
 # Jalankan aplikasi menggunakan serve
-CMD ["serve", "-s", "build", "-l", "3000"]
+CMD ["serve", "-s", "/build", "-l", "3000"]
