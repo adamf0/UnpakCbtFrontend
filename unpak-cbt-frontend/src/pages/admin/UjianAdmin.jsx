@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { apiProduction, apiSelectProduction } from "@src/Constant"
+import { apiProduction, formatDate } from "@src/Constant"
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { FaPlus } from "react-icons/fa";
 import { CiTimer, CiCalendarDate, CiDesktop } from "react-icons/ci";
@@ -131,7 +131,7 @@ const UjianAdmin = () => {
               <div className="flex items-center mb-3">
                 <CiCalendarDate size={24} className="mr-2" />
                 <span className="text-lg font-semibold break-words">
-                  {item.tanggal}
+                  {formatDate(item.tanggal)}
                 </span>
               </div>
 

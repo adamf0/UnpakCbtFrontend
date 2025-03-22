@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { apiProduction, apiSelectProduction } from "@src/Constant"
+import { apiProduction, formatDate } from "@src/Constant"
 import LoadingScreen from "../../components/LoadingScreen";
 import logo from "@assets/images/logo-unpak.png"
 
@@ -173,7 +173,7 @@ const UjianMaba = () => {
                   <div className="flex flex-col">
                     <span className="text-sm text-gray-500">Tanggal Ujian</span>
                     <span className="font-semibold text-gray-800 text-lg">
-                      {jadwal.tanggal}
+                      {formatDate(jadwal.tanggal)}
                     </span>
                   </div>
                   <div className="flex flex-col">

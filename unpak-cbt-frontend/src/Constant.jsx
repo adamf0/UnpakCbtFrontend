@@ -1,4 +1,6 @@
 import axios from "axios";
+import { format } from 'date-fns';
+import { id } from 'date-fns/locale';
 
 const baseUrl = "https://seb.unpak.ac.id";
 
@@ -30,4 +32,9 @@ apiProduction.interceptors.response.use(
   }
 );
 
-export { baseUrl, apiProduction, apiSelectProduction };
+const formatDate = (dateStr) => {
+  const date = new Date(dateStr);
+  return format(date, "iiii, dd MMMM yyyy", { locale: id });
+};
+
+export { baseUrl, apiProduction, apiSelectProduction, formatDate };

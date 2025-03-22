@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { apiProduction, apiSelectProduction } from "@src/Constant"
+import { apiProduction, formatDate } from "@src/Constant"
 import {
   HiOutlineCalendar,
   HiOutlineExclamationCircle,
@@ -31,7 +31,7 @@ const AdminDashboard = () => {
 
         setJadwalUjian(
           jadwal.map((item) => ({
-            label: `${item.deskripsi} - ${item.tanggal} (${item.jamMulai} - ${item.jamAkhir})`,
+            label: `${item.deskripsi} - ${formatDate(item.tanggal)} (${item.jamMulai} - ${item.jamAkhir})`,
             value: item.uuid,
           }))
         );
@@ -283,7 +283,7 @@ const AdminDashboard = () => {
                     <p className="flex items-center gap-2">
                       <HiOutlineCalendar className="text-lg text-gray-500" />
                       <span className="font-medium">Tanggal:</span>{" "}
-                      {ujian.tanggal}
+                      {formatDate(ujian.tanggal)}
                     </p>
                     <p className="flex items-center gap-2">
                       <HiOutlineClock className="text-lg text-gray-500" />
