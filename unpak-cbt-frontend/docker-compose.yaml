@@ -1,10 +1,15 @@
 version: '3.8'
 
 services:
-  react-app:
+  cbt_frontend:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: cbt_frontend
+    image: cbt_frontend:0.1.0
+    security_opt:
+      - "no-new-privileges:true"
+      - apparmor=docker-default
     ports:
       - "3000:3000"
     environment:
