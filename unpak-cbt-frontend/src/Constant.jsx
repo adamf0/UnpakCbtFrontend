@@ -9,7 +9,7 @@ const apiProduction = axios.create({
 });
 
 const apiSelectProduction = axios.create({
-    baseURL: "https://sipaksi.unpak.ac.id/select2",
+    baseURL: "https://sipaksi.unpak.ac.id",
 });
 
 apiProduction.interceptors.request.use((config) => {
