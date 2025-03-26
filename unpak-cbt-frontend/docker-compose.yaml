@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: cbt_frontend
-    image: cbt_frontend:0.1.0
+    image: cbt_frontend:0.1.1
     security_opt:
       - "no-new-privileges:true"
       - apparmor=docker-default

@@ -77,7 +77,7 @@ const UjianMabaDetail = () => {
 
         // Ambil pertanyaan dan langsung kelompokkan berdasarkan tipe
         const pertanyaanResponse = await apiProduction.get(
-          `/api/TemplatePertanyaan/BankSoal/${jadwalResponse.data.uuidBankSoal}?IdBankSoal=${jadwalResponse.data.uuidBankSoal}`
+          `/api/TemplatePertanyaan/BankSoal/${jadwalResponse.data.uuidBankSoal}`
         );
 
         const grouped = pertanyaanResponse.data.reduce((acc, item) => {

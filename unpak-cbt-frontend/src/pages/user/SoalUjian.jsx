@@ -36,7 +36,7 @@ const SoalUjian = () => {
 
         const soalResponse = (
           await apiProduction.get(
-            `/api/TemplatePertanyaan/BankSoal/${jadwal.uuidBankSoal}?IdBankSoal=${jadwal.uuidBankSoal}`
+            `/api/TemplatePertanyaan/BankSoal/${jadwal.uuidBankSoal}?type=valid_random`
           )
         ).data;
 
@@ -49,7 +49,7 @@ const SoalUjian = () => {
         console.log("Soal:", filtered);
 
         const jawabanRes = await apiProduction.get(
-          `/api/TemplateJawaban/BankSoal/${jadwal.uuidBankSoal}`
+          `/api/TemplateJawaban/BankSoal/${jadwal.uuidBankSoal}?type=valid_random`
         );
         setJawaban(jawabanRes.data);
 
