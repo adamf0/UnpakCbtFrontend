@@ -71,7 +71,7 @@ const UjianMabaDetail = () => {
     };
 
     validateExamStatus();
-  }, [examData?.idUjian, examData?.noReg]); // depend langsung ke nilai yang pasti
+  }, [examData?.idUjian, examData?.noReg]);
 
   useEffect(() => {
     if (location.state) {
