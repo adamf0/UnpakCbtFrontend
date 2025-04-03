@@ -2,7 +2,7 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import NavbarMaba from "../../components/NavbarMaba";
 import Button from "../../components/Button";
-import { apiProduction, apiSelectProduction } from "@src/Constant"
+import { apiProduction, apiSelectProduction } from "@src/Constant";
 import {
   FaBrain,
   FaSquareRootAlt,
@@ -10,7 +10,7 @@ import {
   FaTimesCircle,
 } from "react-icons/fa";
 import LoadingScreen from "../../components/LoadingScreen";
-import logo from "@assets/images/logo-unpak.png"
+import logo from "@assets/images/logo-unpak.png";
 
 const styleMap = {
   TPA: {
@@ -48,6 +48,30 @@ const UjianMabaDetail = () => {
   const [examData, setExamData] = useState(() => {
     return location.state || JSON.parse(sessionStorage.getItem("examData"));
   });
+
+  useEffect(() => {
+    const validateExamStatus = async () => {
+      
+      if (!examData?.idUjian || !examData?.noReg) return;
+
+      try {
+        const statusResponse = await apiProduction.get(
+          `/api/Ujian/${examData.idUjian}/${examData.noReg}`
+        );
+
+        if (statusResponse.data.status !== "start") {
+          alert("Ujian tidak dapat diakses karena status tidak valid.");
+          navigate(`/maba/${examData.idUjian}/${examData.noReg}`);
+        }
+      } catch (error) {
+        console.error("Gagal memvalidasi status ujian:", error);
+        alert("Terjadi kesalahan saat memverifikasi status ujian.");
+        navigate(`/maba/${examData.idUjian}/${examData.noReg}`);
+      }
+    };
+
+    validateExamStatus();
+  }, [examData?.idUjian, examData?.noReg]); // depend langsung ke nilai yang pasti
 
   useEffect(() => {
     if (location.state) {
@@ -99,7 +123,6 @@ const UjianMabaDetail = () => {
         }, {});
 
         setAnsweredCount(countedAnswers);
-
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -182,11 +205,7 @@ const UjianMabaDetail = () => {
         <Button variant="outline" onClick={() => navigate(-1)}>
           ← Kembali
         </Button>
-        <img
-          src={logo}
-          alt="Logo"
-          className="h-10 w-auto"
-        />
+        <img src={logo} alt="Logo" className="h-10 w-auto" />
       </NavbarMaba>
 
       <div className="container mx-auto p-4">
@@ -234,7 +253,8 @@ const UjianMabaDetail = () => {
                     : "Tes Potensi Akademik"}
                 </span>
                 <span className="mt-2 text-sm text-gray-600">
-                  {answeredCount[tipe] || 0} / {groupedPertanyaan[tipe].length} soal terjawab
+                  {answeredCount[tipe] || 0} / {groupedPertanyaan[tipe].length}{" "}
+                  soal terjawab
                 </span>
               </div>
             ))}
