@@ -219,28 +219,28 @@ const AdminDashboard = () => {
             laporan.length > 0 &&
             !isEmptyData && (
               <div className="overflow-x-auto overflow-y-auto max-h-[400px] mt-6 p-2">
-                <table className="w-full border border-gray-300 rounded-lg overflow-hidden shadow-md text-sm">
+                <table className="w-full border border-gray-300 rounded-lg overflow-hidden shadow-md text-xs">
                   <thead className="bg-gray-200 text-gray-700">
                     <tr>
-                      <th className="p-2 text-left border">No. Reg</th>
-                      <th className="p-2 text-left border">Deskripsi</th>
-                      <th className="p-2 text-left border">Tanggal</th>
-                      <th className="p-2 text-left border">Jam Mulai</th>
-                      <th className="p-2 text-left border">Jam Akhir</th>
-                      <th className="p-2 text-left border">Keputusan</th>
-                      <th className="p-2 text-left border">Tanggal Respon</th>
+                      <th className="p-2 text-left">No. Reg</th>
+                      <th className="p-2 text-left">Deskripsi</th>
+                      <th className="p-2 text-left">Tanggal</th>
+                      <th className="p-2 text-left">Jam Mulai</th>
+                      <th className="p-2 text-left">Jam Akhir</th>
+                      <th className="p-2 text-left">Keputusan</th>
+                      <th className="p-2 text-left">Tanggal Respon</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {laporan.map((item, index) => (
                       <tr key={index} className="hover:bg-gray-100">
-                        <td className="p-2 border">{item.noReg}</td>
-                        <td className="p-2 border">{item.deskripsi}</td>
-                        <td className="p-2 border">{item.tanggal}</td>
-                        <td className="p-2 border">{item.jamMulai}</td>
-                        <td className="p-2 border">{item.jamAkhir}</td>
-                        <td className="p-2 border">{item.keputusan ?? "-"}</td>
-                        <td className="p-2 border">
+                        <td className="p-2">{item.noReg}</td>
+                        <td className="p-2">{item.deskripsi}</td>
+                        <td className="p-2">{item.tanggal}</td>
+                        <td className="p-2">{item.jamMulai}</td>
+                        <td className="p-2">{item.jamAkhir}</td>
+                        <td className="p-2">{item.keputusan ?? "-"}</td>
+                        <td className="p-2">
                           {item.tanggalRespon ?? "-"}
                         </td>
                       </tr>

@@ -1,5 +1,8 @@
 import { MdMenu } from "react-icons/md";
 import { useAuth } from "../context/authContext";
+import Button from "./Button";
+import { FiLogOut } from "react-icons/fi";
+
 
 const Navbar = ({ toggleSidebar, toggleCollapse }) => {
   const { logout } = useAuth();
@@ -13,13 +16,22 @@ const Navbar = ({ toggleSidebar, toggleCollapse }) => {
         </button>
 
         {/* Tombol Collapse Sidebar untuk Desktop */}
-        <button onClick={toggleCollapse} className="hidden lg:flex text-gray-700">
+        <button
+          onClick={toggleCollapse}
+          className="hidden lg:flex text-gray-700"
+        >
           <MdMenu size={24} />
         </button>
       </div>
 
       {/* Logout Link */}
-      <button onClick={logout}>Logout</button>
+      <Button
+        onClick={logout}
+        className="px-3 py-1 text-xs flex items-center gap-1"
+      >
+        <FiLogOut className="text-sm" />
+        Logout
+      </Button>
     </nav>
   );
 };

@@ -7,6 +7,7 @@ import BankSoal from "./pages/admin/BankSoal";
 import BankSoalTambah from "./pages/admin/BankSoalTambah";
 import BankSoalEdit from "./pages/admin/BankSoalEdit";
 import UjianAdmin from "./pages/admin/UjianAdmin";
+import UjianAdminDetail from "./pages/admin/UjianAdminDetail";
 import UjianAdminTambah from "./pages/admin/UjianAdminTambah";
 import UjianAdminEdit from "./pages/admin/UjianAdminEdit";
 import TemplateSoal from "./pages/admin/TemplateSoal";
@@ -37,6 +38,7 @@ function AppRoutes() {
           <Route path="bank-soal/edit/:uuid" element={<BankSoalEdit />} />
           <Route path="bank-soal/template" element={<TemplateSoal />} />
           <Route path="ujian" element={<UjianAdmin />} />
+          <Route path="ujian/:uuid" element={<UjianAdminDetail />} />
           <Route path="ujian/tambah" element={<UjianAdminTambah />} />
           <Route path="ujian/edit/:uuid" element={<UjianAdminEdit />} />
         </Route>

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { apiProduction, formatDate } from "@src/Constant"
+import { apiProduction, formatDate } from "@src/Constant";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { FaPlus } from "react-icons/fa";
 import { CiTimer, CiCalendarDate, CiDesktop } from "react-icons/ci";
@@ -151,7 +151,11 @@ const UjianAdmin = () => {
               </div>
 
               {/* Deskripsi Ujian */}
-              <p className="text-sm break-words">{item.uuidBankSoal ? bankSoal[item.uuidBankSoal] || "Loading..." : "-"}</p>
+              <p className="text-sm break-words">
+                {item.uuidBankSoal
+                  ? bankSoal[item.uuidBankSoal] || "Loading..."
+                  : "-"}
+              </p>
 
               {/* Dropdown */}
               <div
@@ -168,14 +172,16 @@ const UjianAdmin = () => {
                 {dropdownOpen === item.uuid && (
                   <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg border border-gray-200 rounded-md overflow-hidden z-50">
                     <ul className="py-1">
-                      <li
-                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                        onClick={(event) => {
-                          event.stopPropagation();
-                        }}
-                      >
-                        Detail
-                      </li>
+                      <Link to={`/admin/ujian/${item.uuid}`}>
+                        <li
+                          className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                          }}
+                        >
+                          Detail
+                        </li>
+                      </Link>
                       <Link to={`/admin/ujian/edit/${item.uuid}`}>
                         <li
                           className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
