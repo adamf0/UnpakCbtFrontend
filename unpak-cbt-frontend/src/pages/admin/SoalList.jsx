@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { apiProduction, baseUrl } from "@src/Constant"
+import { apiProduction, baseUrl } from "@src/Constant";
 import Modal from "../../components/Modal";
 import Button from "../../components/Button";
 import Input from "../../components/Input";
@@ -64,7 +64,9 @@ const SoalList = ({ soalList, fetchSoalList }) => {
       setPertanyaanInput(response.data.pertanyaan || "");
       setBobotInput(response.data.bobot || "");
       setGambarPreview(
-        response.data.gambar ? `${baseUrl}/api/uploads/${response.data.gambar}` : null
+        response.data.gambar
+          ? `${baseUrl}/api/uploads/${response.data.gambar}`
+          : null
       );
       setGambarInput(null);
     } catch (error) {
@@ -111,7 +113,9 @@ const SoalList = ({ soalList, fetchSoalList }) => {
     if (!selectedJawaban) return;
 
     try {
-      await apiProduction.delete(`/api/TemplateJawaban/${selectedJawaban.uuid}`);
+      await apiProduction.delete(
+        `/api/TemplateJawaban/${selectedJawaban.uuid}`
+      );
       // alert("Jawaban berhasil dihapus!");
       fetchListJawaban(detailSoal.uuid);
       setShowConfirmDeleteJawaban(false);
@@ -178,7 +182,9 @@ const SoalList = ({ soalList, fetchSoalList }) => {
     if (!selectedSoal) return;
 
     try {
-      await apiProduction.delete(`/api/TemplatePertanyaan/${selectedSoal.uuid}`);
+      await apiProduction.delete(
+        `/api/TemplatePertanyaan/${selectedSoal.uuid}`
+      );
 
       fetchSoalList();
       setShowConfirm(false);
@@ -406,7 +412,9 @@ const SoalList = ({ soalList, fetchSoalList }) => {
                   className={`relative border border-gray-200 rounded-lg shadow-sm bg-gray-50 flex items-center justify-center text-lg font-bold text-gray-700 cursor-pointer hover:bg-purple-200 hover:border-purple-600 transition aspect-square ${
                     selectedSoal?.uuid === soal.uuid
                       ? "bg-purple-200 border-purple-600"
-                      : ""
+                      : soal.uuidJawabanBenar
+                      ? "bg-green-100 border-green-500"
+                      : "bg-gray-50 border-gray-200 hover:bg-purple-200 hover:border-purple-600"
                   }`}
                 >
                   {/* Tombol Hapus di Pojok Kanan Atas */}
@@ -427,10 +435,29 @@ const SoalList = ({ soalList, fetchSoalList }) => {
             )}
           </div>
 
+          {/* Keterangan Warna */}
+          <div className="flex flex-col gap-2 mb-auto mt-3 px-3 text-sm">
+            <p className="font-medium text-gray-600">Keterangan:</p>
+            <div className="flex items-center gap-4 flex-wrap">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded border border-purple-600 bg-purple-200"></div>
+                <span>Soal Aktif</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded border border-green-500 bg-green-100"></div>
+                <span>Sudah Ada Jawaban</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded border border-gray-300 bg-white"></div>
+                <span>Belum Ada Jawaban</span>
+              </div>
+            </div>
+          </div>
+
           {/* Tombol Simpan & Simpan Permanen */}
           <div className="mt-4 flex space-x-2">
             <Button onClick={handleSave} className="w-full" variant="primary">
-              Update & Simpan 
+              Update & Simpan
             </Button>
             {/* <Button
               onClick={() => console.log("Simpan data semua")}
