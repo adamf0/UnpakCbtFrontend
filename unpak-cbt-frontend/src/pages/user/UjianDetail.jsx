@@ -59,8 +59,12 @@ const UjianMabaDetail = () => {
           `/api/Ujian/${examData.idUjian}/${examData.noReg}`
         );
 
-        if (statusResponse.data.status !== "start") {
-          alert("Ujian tidak dapat diakses karena status tidak valid.");
+        if(statusResponse.data.status == "active"){
+          alert("Ujian tidak dapat diakses karena status belum mulai ujian.");
+          navigate(`/maba/${examData.idUjian}/${examData.noReg}`);
+        }
+        if(statusResponse.data.status == "done"){
+          alert("Ujian tidak dapat diakses karena status sudah selesai.");
           navigate(`/maba/${examData.idUjian}/${examData.noReg}`);
         }
       } catch (error) {

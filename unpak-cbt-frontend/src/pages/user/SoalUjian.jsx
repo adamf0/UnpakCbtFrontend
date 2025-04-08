@@ -5,6 +5,7 @@ import NavbarMaba from "../../components/NavbarMaba";
 import Button from "../../components/Button";
 import LoadingScreen from "../../components/LoadingScreen";
 import logo from "@assets/images/logo-unpak.png"
+import process from "process"
 
 const SoalUjian = () => {
   const { uuid, tipe } = useParams();
@@ -37,8 +38,12 @@ const SoalUjian = () => {
           `/api/Ujian/${examData.idUjian}/${examData.noReg}`
         );
 
-        if (statusResponse.data.status !== "start") {
-          alert("Ujian tidak dapat diakses karena status tidak valid.");
+        if(statusResponse.data.status == "active"){
+          alert("Ujian tidak dapat diakses karena status belum mulai ujian.");
+          navigate(`/maba/${examData.idUjian}/${examData.noReg}`);
+        }
+        if(statusResponse.data.status == "done"){
+          alert("Ujian tidak dapat diakses karena status sudah selesai.");
           navigate(`/maba/${examData.idUjian}/${examData.noReg}`);
         }
       } catch (error) {
