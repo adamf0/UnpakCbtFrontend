@@ -28,6 +28,30 @@ const SoalUjian = () => {
   const isProduction = version=="production";
 
   useEffect(() => {
+    const validateExamStatus = async () => {
+      
+      if (!examData?.idUjian || !examData?.noReg) return;
+
+      try {
+        const statusResponse = await apiProduction.get(
+          `/api/Ujian/${examData.idUjian}/${examData.noReg}`
+        );
+
+        if (statusResponse.data.status !== "start") {
+          alert("Ujian tidak dapat diakses karena status tidak valid.");
+          navigate(`/maba/${examData.idUjian}/${examData.noReg}`);
+        }
+      } catch (error) {
+        console.error("Gagal memvalidasi status ujian:", error);
+        alert("Terjadi kesalahan saat memverifikasi status ujian.");
+        navigate(`/maba/${examData.idUjian}/${examData.noReg}`);
+      }
+    };
+
+    validateExamStatus();
+  }, [examData?.idUjian, examData?.noReg]);
+
+  useEffect(() => {
     const fetchData = async () => {
       try {
         const jadwal = (

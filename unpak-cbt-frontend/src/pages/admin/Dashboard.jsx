@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { apiProduction, formatDate } from "@src/Constant"
+import { apiProduction, formatDate } from "@src/Constant";
 import {
   HiOutlineCalendar,
   HiOutlineExclamationCircle,
@@ -31,7 +31,9 @@ const AdminDashboard = () => {
 
         setJadwalUjian(
           jadwal.map((item) => ({
-            label: `${item.deskripsi} - ${formatDate(item.tanggal)} (${item.jamMulai} - ${item.jamAkhir})`,
+            label: `${item.deskripsi} - ${formatDate(item.tanggal)} (${
+              item.jamMulai
+            } - ${item.jamAkhir})`,
             value: item.uuid,
           }))
         );
@@ -136,13 +138,16 @@ const AdminDashboard = () => {
           {/* Filter Section */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
             <Select
-              label="Pilih Jadwal Ujian"
-              options={jadwalUjian}
+              label="Filter Jadwal Ujian"
+              options={[
+                { label: "Semua Jadwal", value: "" },
+                ...jadwalUjian
+              ]}
               value={filterData.uuidJadwalUjian}
               onChange={(value) => handleFilterChange("uuidJadwalUjian", value)}
             />
             <Input
-              label="Tanggal Mulai"
+              label="Filter Tanggal Mulai"
               type="date"
               value={filterData.tanggalMulai}
               onChange={(e) =>
@@ -150,7 +155,7 @@ const AdminDashboard = () => {
               }
             />
             <Input
-              label="Tanggal Akhir"
+              label="Filter Tanggal Akhir"
               type="date"
               value={filterData.tanggalAkhir}
               onChange={(e) =>
@@ -218,31 +223,29 @@ const AdminDashboard = () => {
             Array.isArray(laporan) &&
             laporan.length > 0 &&
             !isEmptyData && (
-              <div className="overflow-x-auto overflow-y-auto max-h-[400px] mt-6 p-2">
-                <table className="w-full border border-gray-300 rounded-lg overflow-hidden shadow-md text-sm">
+              <div className="overflow-x-auto overflow-y-auto max-h-[400px] mt-6 border border-gray-200 rounded-lg shadow-sm">
+                <table className="w-full overflow-hidden text-xs">
                   <thead className="bg-gray-200 text-gray-700">
                     <tr>
-                      <th className="p-2 text-left border">No. Reg</th>
-                      <th className="p-2 text-left border">Deskripsi</th>
-                      <th className="p-2 text-left border">Tanggal</th>
-                      <th className="p-2 text-left border">Jam Mulai</th>
-                      <th className="p-2 text-left border">Jam Akhir</th>
-                      <th className="p-2 text-left border">Keputusan</th>
-                      <th className="p-2 text-left border">Tanggal Respon</th>
+                      <th className="p-2 text-left">No. Reg</th>
+                      <th className="p-2 text-left">Deskripsi</th>
+                      <th className="p-2 text-left">Tanggal</th>
+                      <th className="p-2 text-center">Jam Mulai</th>
+                      <th className="p-2 text-center">Jam Akhir</th>
+                      <th className="p-2 text-center">Keputusan</th>
+                      <th className="p-2 text-center">Tanggal Respon</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {laporan.map((item, index) => (
                       <tr key={index} className="hover:bg-gray-100">
-                        <td className="p-2 border">{item.noReg}</td>
-                        <td className="p-2 border">{item.deskripsi}</td>
-                        <td className="p-2 border">{item.tanggal}</td>
-                        <td className="p-2 border">{item.jamMulai}</td>
-                        <td className="p-2 border">{item.jamAkhir}</td>
-                        <td className="p-2 border">{item.keputusan ?? "-"}</td>
-                        <td className="p-2 border">
-                          {item.tanggalRespon ?? "-"}
-                        </td>
+                        <td className="p-2">{item.noReg}</td>
+                        <td className="p-2">{item.deskripsi}</td>
+                        <td className="p-2">{item.tanggal}</td>
+                        <td className="p-2 text-center">{item.jamMulai}</td>
+                        <td className="p-2 text-center">{item.jamAkhir}</td>
+                        <td className="p-2 text-center">{item.keputusan ?? "-"}</td>
+                        <td className="p-2 text-center">{item.tanggalRespon ?? "-"}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -272,62 +275,64 @@ const AdminDashboard = () => {
           {/* Ujian Aktif */}
           <div className="bg-white shadow-md rounded-lg p-4">
             {ujianAktif && ujianAktif.length > 0 ? (
-              ujianAktif.map((ujian, index) => (
-                <div key={index} className="bg-green-50 rounded-lg mb-4 p-4">
-                  {/* Nama Ujian */}
-                  <h3 className="text-lg font-bold text-purple-600 mb-2">
-                    {ujian.deskripsi}
-                  </h3>
-                  {/* Detail Ujian */}
-                  <div className="text-gray-700 text-sm space-y-2">
-                    <p className="flex items-center gap-2">
-                      <HiOutlineCalendar className="text-lg text-gray-500" />
-                      <span className="font-medium">Tanggal:</span>{" "}
-                      {formatDate(ujian.tanggal)}
-                    </p>
-                    <p className="flex items-center gap-2">
-                      <HiOutlineClock className="text-lg text-gray-500" />
-                      <span className="font-medium">Waktu:</span>{" "}
-                      {ujian.jamMulai} - {ujian.jamAkhir}
-                    </p>
-                    <p className="flex items-center gap-2">
-                      <HiOutlineUserGroup className="text-lg text-gray-500" />
-                      <span className="font-medium">Peserta:</span>{" "}
-                      {ujian.totalJoin}
-                    </p>
+              <div className="space-y-4">
+                {ujianAktif.map((ujian, index) => (
+                  <div key={index} className="bg-green-50 rounded-lg p-4">
+                    {/* Nama Ujian */}
+                    <h3 className="text-lg font-bold text-purple-600 mb-2">
+                      {ujian.deskripsi}
+                    </h3>
+                    {/* Detail Ujian */}
+                    <div className="text-gray-700 text-sm space-y-2">
+                      <p className="flex items-center gap-2">
+                        <HiOutlineCalendar className="text-lg text-gray-500" />
+                        <span className="font-medium">Tanggal:</span>{" "}
+                        {formatDate(ujian.tanggal)}
+                      </p>
+                      <p className="flex items-center gap-2">
+                        <HiOutlineClock className="text-lg text-gray-500" />
+                        <span className="font-medium">Waktu:</span>{" "}
+                        {ujian.jamMulai} - {ujian.jamAkhir}
+                      </p>
+                      <p className="flex items-center gap-2">
+                        <HiOutlineUserGroup className="text-lg text-gray-500" />
+                        <span className="font-medium">Peserta:</span>{" "}
+                        {ujian.totalJoin}
+                      </p>
+                    </div>
+                    <hr className="mt-4 border-gray-200" />
+                    {/* Badge Status */}
+                    <div className="flex items-center justify-center mt-4">
+                      <span
+                        className={`flex items-center gap-2 px-4 py-1 rounded-full text-xs font-semibold uppercase tracking-wide ${
+                          ujian.statusUjian === "ongoing"
+                            ? "bg-green-200 text-green-800"
+                            : ujian.statusUjian === "upcoming"
+                            ? "bg-yellow-200 text-yellow-800"
+                            : "bg-red-200 text-red-800"
+                        }`}
+                      >
+                        {ujian.statusUjian === "ongoing" ? (
+                          <>
+                            <span className="w-2 h-2 bg-green-600 rounded-full animate-pulse"></span>
+                            Sedang Berlangsung
+                          </>
+                        ) : ujian.statusUjian === "upcoming" ? (
+                          <>
+                            <span className="w-2 h-2 bg-yellow-600 rounded-full animate-pulse"></span>
+                            Akan Datang
+                          </>
+                        ) : (
+                          <>
+                            <span className="w-2 h-2 bg-red-600 rounded-full"></span>
+                            Selesai
+                          </>
+                        )}
+                      </span>
+                    </div>
                   </div>
-                  <hr className="mt-4 border-gray-200" />
-                  {/* Badge Status */}
-                  <div className="flex items-center justify-center mt-4">
-                    <span
-                      className={`flex items-center gap-2 px-4 py-1 rounded-full text-xs font-semibold uppercase tracking-wide ${
-                        ujian.statusUjian === "ongoing"
-                          ? "bg-green-200 text-green-800"
-                          : ujian.statusUjian === "upcoming"
-                          ? "bg-yellow-200 text-yellow-800"
-                          : "bg-red-200 text-red-800"
-                      }`}
-                    >
-                      {ujian.statusUjian === "ongoing" ? (
-                        <>
-                          <span className="w-2 h-2 bg-green-600 rounded-full animate-pulse"></span>
-                          Sedang Berlangsung
-                        </>
-                      ) : ujian.statusUjian === "upcoming" ? (
-                        <>
-                          <span className="w-2 h-2 bg-yellow-600 rounded-full animate-pulse"></span>
-                          Akan Datang
-                        </>
-                      ) : (
-                        <>
-                          <span className="w-2 h-2 bg-red-600 rounded-full"></span>
-                          Selesai
-                        </>
-                      )}
-                    </span>
-                  </div>
-                </div>
-              ))
+                ))}
+              </div>
             ) : (
               <div className="text-center p-6 flex flex-col items-center">
                 <HiOutlineCalendar className="text-gray-400 text-7xl mb-4" />
