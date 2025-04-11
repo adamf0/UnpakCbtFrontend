@@ -159,6 +159,7 @@ const UjianAdminEdit = () => {
               value={idBankSoal || ""}
               onChange={setIdBankSoal}
               required
+              disabled
             />
           </div>
 

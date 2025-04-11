@@ -9,6 +9,7 @@ const Select = ({
   required = false,
   multiple = false,
   placeholder = "Pilih opsi",
+  disabled = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState("");
@@ -73,7 +74,10 @@ const Select = ({
       {/* Button for Select */}
       <button
         type="button"
-        className={`grid w-full cursor-default grid-cols-1 rounded-md px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 bg-gray-100
+        className={`grid w-full cursor-default grid-cols-1 rounded-md px-4 py-2 border border-gray-300 rounded-md bg-gray-100
+          ${
+            !disabled? `focus:outline-none focus:ring-2 focus:ring-purple-500` : ``
+          }
           ${
             isFocused || value.length > 0 ? "bg-white" : "bg-gray-100"
           } ${className}`}
@@ -109,7 +113,7 @@ const Select = ({
           fill="currentColor"
           aria-hidden="true"
           data-slot="icon"
-          style={{ transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }}
+          style={{ transform: (isOpen && !disabled) ? "rotate(180deg)" : "rotate(0deg)" }}
         >
           <path
             fillRule="evenodd"
@@ -120,7 +124,7 @@ const Select = ({
       </button>
 
       {/* Dropdown List */}
-      {isOpen && (
+      {(isOpen && !disabled) && (
         <ul
           className="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-white py-1 text-base ring-1 shadow-lg ring-black/5 focus:outline-hidden sm:text-sm"
           role="listbox"
