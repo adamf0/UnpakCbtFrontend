@@ -79,7 +79,7 @@ const UjianAdmin = () => {
   const handleConfirmDelete = (uuid, tanggal, event) => {
     event.stopPropagation();
     setSelectedUUID(uuid);
-    setSelectedTitle(tanggal);
+    setSelectedTitle(formatDate(tanggal));
     setShowConfirm(true);
     setDropdownOpen(null);
   };

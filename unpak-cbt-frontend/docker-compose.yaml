@@ -11,7 +11,7 @@ services:
         VITE_SELECT_URL: https://sipaksi.unpak.ac.id/select2
         VITE_NODE_ENV: dev
     container_name: cbt_frontend
-    image: cbt_frontend:0.1.4
+    image: cbt_frontend:0.1.4a
     security_opt:
       - "no-new-privileges:true"
       - apparmor=docker-default
