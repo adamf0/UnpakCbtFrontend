@@ -9,13 +9,14 @@ const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
-
+  const [loading, setLoading] = useState(false);
   const { login } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError(null);
 
+    setLoading(true);
     try {
       const response = await apiProduction.post("/api/Authentication", {
         username,
@@ -26,11 +27,14 @@ const Login = () => {
       // console.log("Token:", token);
 
       if (token) {
+        setLoading(false);
         login(token);
       } else {
+        setLoading(false);
         setError("Login gagal, silakan coba lagi.");
       }
     } catch (err) {
+      setLoading(false);
       setError(err.response?.data?.message || "Terjadi kesalahan saat login.");
     }
   };
@@ -91,7 +95,7 @@ const Login = () => {
           <div className="mb-4"></div>
 
           {/* Login Button */}
-          <Button onClick={handleLogin} className="w-full">
+          <Button loading={loading} onClick={handleLogin} className="w-full">
             Masuk
           </Button>
         </form>
