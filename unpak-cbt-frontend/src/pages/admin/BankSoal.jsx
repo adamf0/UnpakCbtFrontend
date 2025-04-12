@@ -104,7 +104,30 @@ const BankSoal = () => {
       // alert("Data berhasil dihapus!");
     } catch (error) {
       console.error("Error deleting data:", error);
-      alert("Terjadi kesalahan saat menghapus data.");
+
+      let message = "Terjadi kesalahan saat menghapus data";
+      if (error.response) {
+        const contentType = error.response.headers['content-type'];
+        if (
+          contentType?.includes('application/json') ||
+          contentType?.includes('application/problem+json')
+        ) {
+          const data = error.response.data;
+          if(data?.title=="BankSoal.NotFound"){
+            message = "Bank soal tidak ditemukan";
+          } else if(data?.title=="BankSoal.CommandAbort"){
+            message = "Bank soal tidak dapat di hapus karena sudah digunakan pada jadwal ujian aktif dan maba sudah mendaftarkan diri pada jadwal ujian tersebut";
+          }
+        }
+        else if (typeof error.response.data === 'string') {
+          message = "Terjadi masalah pada server dalam memberikan respon";
+        }
+      } else if (error.request) {
+        message = "Tidak dapat terhubung ke server";
+      } else {
+        message = error.message;
+      }
+      alert(message);
     } finally {
       setShowConfirm(false);
       setSelectedUUID(null);
