@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { apiProduction, apiSelectProduction } from "@src/Constant"
+import { apiProduction, apiSelectProduction } from "@src/Constant";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { CiCalendarDate, CiViewList } from "react-icons/ci";
 import { FaPlus } from "react-icons/fa";
@@ -107,19 +107,19 @@ const BankSoal = () => {
 
       let message = "Terjadi kesalahan saat menghapus data";
       if (error.response) {
-        const contentType = error.response.headers['content-type'];
+        const contentType = error.response.headers["content-type"];
         if (
-          contentType?.includes('application/json') ||
-          contentType?.includes('application/problem+json')
+          contentType?.includes("application/json") ||
+          contentType?.includes("application/problem+json")
         ) {
           const data = error.response.data;
-          if(data?.title=="BankSoal.NotFound"){
+          if (data?.title == "BankSoal.NotFound") {
             message = "Bank soal tidak ditemukan";
-          } else if(data?.title=="BankSoal.CommandAbort"){
-            message = "Bank soal tidak dapat di hapus karena sudah digunakan pada jadwal ujian aktif dan maba sudah mendaftarkan diri pada jadwal ujian tersebut";
+          } else if (data?.title == "BankSoal.CommandAbort") {
+            message =
+              "Bank soal tidak dapat di hapus karena sudah digunakan pada jadwal ujian aktif dan maba sudah mendaftarkan diri pada jadwal ujian tersebut";
           }
-        }
-        else if (typeof error.response.data === 'string') {
+        } else if (typeof error.response.data === "string") {
           message = "Terjadi masalah pada server dalam memberikan respon";
         }
       } else if (error.request) {
@@ -234,17 +234,24 @@ const BankSoal = () => {
                   <BsThreeDotsVertical size={20} />
                 </button>
 
+                {/* Dropdown Menu */}
                 {dropdownOpen === item.uuid && (
                   <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg border border-gray-200 rounded-md overflow-hidden z-50">
                     <ul className="py-1">
-                      <li
-                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                        onClick={(event) =>
-                          handleToggleStatus(item.uuid, item.status, event)
-                        }
-                      >
-                        {item.status === "active" ? "Non-Aktifkan" : "Aktifkan"}
-                      </li>
+                      {/* Hanya tampilkan toggle aktif/non-aktif kalau tidak disabled */}
+                      {item.disabled !== 1 && (
+                        <li
+                          className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                          onClick={(event) =>
+                            handleToggleStatus(item.uuid, item.status, event)
+                          }
+                        >
+                          {item.status === "active"
+                            ? "Non-Aktifkan"
+                            : "Aktifkan"}
+                        </li>
+                      )}
+
                       <li
                         className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                         onClick={(event) => {
@@ -254,6 +261,7 @@ const BankSoal = () => {
                       >
                         Template Soal
                       </li>
+
                       <Link to={`/admin/bank-soal/edit/${item.uuid}`}>
                         <li
                           className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
@@ -262,14 +270,18 @@ const BankSoal = () => {
                           Edit
                         </li>
                       </Link>
-                      <li
-                        className="px-4 py-2 hover:bg-red-100 text-red-600 cursor-pointer"
-                        onClick={(event) =>
-                          handleConfirmDelete(item.uuid, item.judul, event)
-                        }
-                      >
-                        Hapus
-                      </li>
+
+                      {/* Hanya tampilkan hapus kalau tidak disabled */}
+                      {item.disabled !== 1 && (
+                        <li
+                          className="px-4 py-2 hover:bg-red-100 text-red-600 cursor-pointer"
+                          onClick={(event) =>
+                            handleConfirmDelete(item.uuid, item.judul, event)
+                          }
+                        >
+                          Hapus
+                        </li>
+                      )}
                     </ul>
                   </div>
                 )}
