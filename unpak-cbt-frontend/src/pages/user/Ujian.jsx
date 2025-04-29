@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { apiProduction, formatDate } from "@src/Constant"
+import { apiProduction, formatDate } from "@src/Constant";
 import LoadingScreen from "../../components/LoadingScreen";
-import logo from "@assets/images/logo-unpak.png"
+import logo from "@assets/images/logo-unpak.png";
 
 const UjianMaba = () => {
   const { uuid, noReg } = useParams();
@@ -29,6 +29,7 @@ const UjianMaba = () => {
           const jadwalResponse = await apiProduction.get(
             `/api/JadwalUjian/${response.data.uuidJadwalUjian}`
           );
+          console.log("Data Jadwal Ujian:", jadwalResponse.data);
           setJadwal(jadwalResponse.data);
         }
       } catch (error) {
@@ -134,6 +135,41 @@ const UjianMaba = () => {
     }
   };
 
+  const handleTrialExam = () => {
+    try {
+      setIsLoading(true);
+  
+      // Simpan data ujian trial ke sessionStorage
+      sessionStorage.setItem(
+        "examData",
+        JSON.stringify({
+          noReg: dataUjian.noReg,
+          idUjian: dataUjian.uuid,
+          idJadwalUjian: dataUjian.uuidJadwalUjian,
+          idBankSoal: jadwal.uuidBankSoalTrial, // <-- bedakan pakai soal trial
+          isTrial: true, // <-- tambahan flag supaya tahu ini ujian trial
+        })
+      );
+  
+      // Navigasi ke halaman ujian
+      navigate(`/maba/ujian/${dataUjian.uuid}`, {
+        state: {
+          noReg: dataUjian.noReg,
+          idUjian: dataUjian.uuid,
+          idJadwalUjian: dataUjian.uuidJadwalUjian,
+          idBankSoal: jadwal.uuidBankSoalTrial, // <-- pakai soal trial
+          isTrial: true,
+        },
+      });
+    } catch (error) {
+      console.error("Gagal memulai uji coba:", error);
+      alert("Terjadi kesalahan saat memulai uji coba. Silakan coba lagi.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+
   if (loading) {
     return <LoadingScreen message="Sedang memuat data..." />;
   }
@@ -142,11 +178,7 @@ const UjianMaba = () => {
     <>
       <div className="flex bg-purple-400 flex-col items-center justify-center min-h-[100vh] px-4 py-4">
         <div className="flex justify-center mb-4">
-          <img
-            src={logo}
-            alt="Logo"
-            className="h-24"
-          />
+          <img src={logo} alt="Logo" className="h-24" />
         </div>
         <h2 className="text-2xl font-bold text-white text-center">
           Selamat Datang Calon Mahasiswa Baru!
@@ -193,7 +225,6 @@ const UjianMaba = () => {
                 {dataUjian.status === "cancel" && (
                   <div className="mt-4 px-4 py-3 bg-red-100 border border-red-400 text-red-600 rounded-lg text-center">
                     <div className="flex justify-center items-start gap-2">
-                      
                       <p className="text-sm font-medium">
                         Anda tidak dapat memulai ujian karena status ujian Anda
                         tidak aktif. Harap lapor ke admin PMB untuk mengaktifkan
@@ -240,6 +271,28 @@ const UjianMaba = () => {
                       </button>
                     </div>
                   )}
+
+                {status === "waiting" && dataUjian.status === "active" && (
+                  <>
+                    {dataUjian.freeTrial === 0 ? (
+                      <div className="mt-4">
+                        <button
+                          onClick={handleTrialExam}
+                          className="w-full font-bold bg-yellow-400 py-3 rounded-xl shadow-md 
+                          hover:bg-yellow-500 hover:shadow-lg transition-all duration-300 ease-in-out"
+                        >
+                          Uji Coba Ujian
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="mt-4 px-4 py-3 bg-green-100 border border-green-400 text-green-600 rounded-lg text-center">
+                        <p className="text-sm font-medium">
+                          Uji coba ujian telah dilakukan.
+                        </p>
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
 
               <div className="text-center px-4 py-5 rounded-b-xl bg-indigo-50">

@@ -49,9 +49,12 @@ const UjianMabaDetail = () => {
     return location.state || JSON.parse(sessionStorage.getItem("examData"));
   });
 
+  const isTrial = examData?.isTrial || false;
+
   useEffect(() => {
+    if (isTrial) return;
+
     const validateExamStatus = async () => {
-      
       if (!examData?.idUjian || !examData?.noReg) return;
 
       try {
@@ -59,11 +62,11 @@ const UjianMabaDetail = () => {
           `/api/Ujian/${examData.idUjian}/${examData.noReg}`
         );
 
-        if(statusResponse.data.status == "active"){
+        if (statusResponse.data.status == "active") {
           alert("Ujian tidak dapat diakses karena status belum mulai ujian.");
           navigate(`/maba/${examData.idUjian}/${examData.noReg}`);
         }
-        if(statusResponse.data.status == "done"){
+        if (statusResponse.data.status == "done") {
           alert("Ujian tidak dapat diakses karena status sudah selesai.");
           navigate(`/maba/${examData.idUjian}/${examData.noReg}`);
         }
@@ -75,7 +78,7 @@ const UjianMabaDetail = () => {
     };
 
     validateExamStatus();
-  }, [examData?.idUjian, examData?.noReg]);
+  }, [examData?.idUjian, examData?.noReg, isTrial]);
 
   useEffect(() => {
     if (location.state) {
@@ -104,9 +107,16 @@ const UjianMabaDetail = () => {
         setJadwalUjian(jadwalResponse.data);
 
         // Ambil pertanyaan dan langsung kelompokkan berdasarkan tipe
+        const bankSoalId = isTrial
+          ? jadwalResponse.data.uuidBankSoalTrial
+          : jadwalResponse.data.uuidBankSoal;
         const pertanyaanResponse = await apiProduction.get(
-          `/api/TemplatePertanyaan/BankSoal/${jadwalResponse.data.uuidBankSoal}`
+          `/api/TemplatePertanyaan/BankSoal/${bankSoalId}`
         );
+
+        // const pertanyaanResponse = await apiProduction.get(
+        //   `/api/TemplatePertanyaan/BankSoal/${jadwalResponse.data.uuidBankSoal}`
+        // );
 
         const grouped = pertanyaanResponse.data.reduce((acc, item) => {
           acc[item.tipe] = [...(acc[item.tipe] || []), item];
@@ -137,6 +147,11 @@ const UjianMabaDetail = () => {
 
   // Logic Timer
   useEffect(() => {
+    if (isTrial) {
+      setLoading(false); // kalau trial, tidak perlu timer
+      return;
+    }
+
     let timer;
     if (jadwalUjian) {
       timer = setInterval(() => {
@@ -164,7 +179,7 @@ const UjianMabaDetail = () => {
     }
 
     return () => clearInterval(timer);
-  }, [jadwalUjian]);
+  }, [jadwalUjian, isTrial]);
 
   const formatTime = (seconds) => {
     const h = Math.floor(seconds / 3600)
@@ -186,10 +201,16 @@ const UjianMabaDetail = () => {
     }
 
     try {
-      await apiProduction.put(`/api/Ujian/Done`, {
+      const payload = {
         id: examData.idUjian,
         noReg: examData.noReg,
-      });
+      };
+
+      if (isTrial) {
+        payload.mode = "trial";
+      }
+
+      await apiProduction.put(`/api/Ujian/Done`, payload);
 
       alert("Ujian telah selesai!");
       navigate(`/maba/${examData.idUjian}/${examData.noReg}`);
@@ -213,25 +234,29 @@ const UjianMabaDetail = () => {
       </NavbarMaba>
 
       <div className="container mx-auto p-4">
-        <div className="text-right mt-4">
-          <span
-            className={`inline-block px-4 py-2 rounded-full text-sm font-semibold ${
-              status === "finished"
-                ? "bg-red-100 text-red-700"
-                : status === "ongoing"
-                ? "bg-green-100 text-green-700"
-                : "bg-yellow-100 text-yellow-700"
-            }`}
-          >
-            {status === "finished"
-              ? "Waktu Habis"
-              : status === "waiting"
-              ? `Menunggu Dimulai (${
-                  timeLeft ? formatTime(timeLeft) : "Loading..."
-                })`
-              : `Sisa waktu: ${timeLeft ? formatTime(timeLeft) : "Loading..."}`}
-          </span>
-        </div>
+        {!isTrial && (
+          <div className="text-right mt-4">
+            <span
+              className={`inline-block px-4 py-2 rounded-full text-sm font-semibold ${
+                status === "finished"
+                  ? "bg-red-100 text-red-700"
+                  : status === "ongoing"
+                  ? "bg-green-100 text-green-700"
+                  : "bg-yellow-100 text-yellow-700"
+              }`}
+            >
+              {status === "finished"
+                ? "Waktu Habis"
+                : status === "waiting"
+                ? `Menunggu Dimulai (${
+                    timeLeft ? formatTime(timeLeft) : "Loading..."
+                  })`
+                : `Sisa waktu: ${
+                    timeLeft ? formatTime(timeLeft) : "Loading..."
+                  }`}
+            </span>
+          </div>
+        )}
 
         <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {tipeUrutan

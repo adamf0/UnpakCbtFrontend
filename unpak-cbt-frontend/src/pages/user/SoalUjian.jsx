@@ -1,11 +1,11 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { apiProduction, baseUrl } from "@src/Constant"
+import { apiProduction, baseUrl } from "@src/Constant";
 import NavbarMaba from "../../components/NavbarMaba";
 import Button from "../../components/Button";
 import LoadingScreen from "../../components/LoadingScreen";
-import logo from "@assets/images/logo-unpak.png"
-import process from "process"
+import logo from "@assets/images/logo-unpak.png";
+import process from "process";
 
 const SoalUjian = () => {
   const { uuid, tipe } = useParams();
@@ -25,12 +25,16 @@ const SoalUjian = () => {
     const storedData = sessionStorage.getItem("examData");
     return storedData ? JSON.parse(storedData) : null;
   });
+
+  const isTrial = examData?.isTrial || false;
+
   const version = process.env.VITE_NODE_ENV;
-  const isProduction = version=="production";
+  const isProduction = version == "production";
 
   useEffect(() => {
+    if (isTrial) return;
+
     const validateExamStatus = async () => {
-      
       if (!examData?.idUjian || !examData?.noReg) return;
 
       try {
@@ -38,11 +42,11 @@ const SoalUjian = () => {
           `/api/Ujian/${examData.idUjian}/${examData.noReg}`
         );
 
-        if(statusResponse.data.status == "active"){
+        if (statusResponse.data.status == "active") {
           alert("Ujian tidak dapat diakses karena status belum mulai ujian.");
           navigate(`/maba/${examData.idUjian}/${examData.noReg}`);
         }
-        if(statusResponse.data.status == "done"){
+        if (statusResponse.data.status == "done") {
           alert("Ujian tidak dapat diakses karena status sudah selesai.");
           navigate(`/maba/${examData.idUjian}/${examData.noReg}`);
         }
@@ -54,7 +58,7 @@ const SoalUjian = () => {
     };
 
     validateExamStatus();
-  }, [examData?.idUjian, examData?.noReg]);
+  }, [examData?.idUjian, examData?.noReg, isTrial]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -63,9 +67,13 @@ const SoalUjian = () => {
           await apiProduction.get(`/api/JadwalUjian/${examData?.idJadwalUjian}`)
         ).data;
 
+        const bankSoalId = isTrial
+          ? jadwal.uuidBankSoalTrial
+          : jadwal.uuidBankSoal;
+
         const soalResponse = (
           await apiProduction.get(
-            `/api/TemplatePertanyaan/BankSoalV2/${jadwal.uuidBankSoal}`
+            `/api/TemplatePertanyaan/BankSoalV2/${bankSoalId}`
           )
         ).data;
 
@@ -78,8 +86,8 @@ const SoalUjian = () => {
         console.log("Soal:", filtered);
 
         const jawabanRes = await apiProduction.get(
-          `/api/TemplateJawaban/BankSoalV2/${jadwal.uuidBankSoal}`
-        );
+          `/api/TemplateJawaban/BankSoalV2/${bankSoalId}`
+        );        
         setJawaban(jawabanRes.data);
 
         // Timer
@@ -117,7 +125,9 @@ const SoalUjian = () => {
 
   const fetchAnsweredQuestions = async () => {
     try {
-      const response = await apiProduction.get(`/api/Ujian/Cbt/${examData.idUjian}`);
+      const response = await apiProduction.get(
+        `/api/Ujian/Cbt/${examData.idUjian}`
+      );
       const answeredMap = new Map();
 
       response.data.forEach((item) => {
@@ -165,6 +175,10 @@ const SoalUjian = () => {
       uuidTemplateSoal: uuidTemplateSoal,
       uuidJawabanBenar: uuidJawabanBenar,
     };
+
+    if (isTrial) {
+      payload.mode = "trial";
+    }
 
     try {
       await apiProduction.put("/api/Ujian/Cbt", payload, {
@@ -225,11 +239,7 @@ const SoalUjian = () => {
         <Button variant="outline" onClick={() => navigate(-1)}>
           ← Kembali
         </Button>
-        <img
-          src={logo}
-          alt="Logo"
-          className="h-10 w-auto"
-        />
+        <img src={logo} alt="Logo" className="h-10 w-auto" />
       </NavbarMaba>
 
       <div style={{ userSelect: "none" }} className="bg-gray-100 min-h-screen">
