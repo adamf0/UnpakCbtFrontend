@@ -51,7 +51,7 @@ const SoalList = ({ soalList, fetchSoalList }) => {
   // Filter soal berdasarkan tab yang dipilih
   const filteredSoalList = soalList
     .filter((soal) => soal.tipe === activeTab)
-    .sort((a, b) => a.uuid.localeCompare(b.uuid));
+    .sort((a, b) => a.id - b.id);
 
   // Fetch detail soal
   const fetchDetailSoal = async (id) => {

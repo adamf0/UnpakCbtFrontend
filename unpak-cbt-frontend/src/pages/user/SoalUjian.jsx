@@ -248,6 +248,7 @@ const SoalUjian = () => {
           {/* <div className="my-4 bg-red-100 text-red-600 rounded-xl px-4 py-3 text-center">
             Tidak ada sinyal
           </div> */}
+          {!isTrial && (
           <div className="text-right mt-4">
             <span
               className={`inline-block px-4 py-2 rounded-full text-sm font-semibold ${
@@ -269,6 +270,7 @@ const SoalUjian = () => {
                   }`}
             </span>
           </div>
+          )}
           <div className="mt-6 flex flex-col lg:flex-row gap-6">
             {/* Bagian Soal & Jawaban */}
             <div className="flex-1 bg-white shadow-lg rounded-xl p-6">
