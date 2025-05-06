@@ -41,7 +41,7 @@ const BankSoalTambah = () => {
       try {
         const response = await apiSelectProduction.get("/select2/list_jenjang");
         const jenjangOptions = response.data.map((item) => ({
-          value: item.id, // Sesuai dengan struktur API
+          value: item.id.toLowerCase(), // Sesuai dengan struktur API
           label: item.text, // Menampilkan label Jenjang
         }));
         setJenjangList(jenjangOptions);

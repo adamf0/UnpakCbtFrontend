@@ -35,7 +35,7 @@ const BankSoalEdit = () => {
           const ruleData = JSON.parse(data.rule);
           setFakultas(ruleData.fakultas?.map((f) => f.value) || []);
           setProdi(ruleData.prodi?.map((p) => p.value) || []);
-          setJenjang(ruleData.jenjang?.map((j) => j.value) || []);
+          setJenjang(ruleData.jenjang?.map((j) => j.value.toLowerCase()) || []);
         }
 
         setError(null); // Reset error jika data ditemukan
@@ -65,7 +65,7 @@ const BankSoalEdit = () => {
     apiSelectProduction.get("/select2/list_jenjang").then((response) => {
       setJenjangList(
         response.data.map((item) => ({
-          value: item.id,
+          value: item.id.toLowerCase(),
           label: item.text,
         }))
       );
