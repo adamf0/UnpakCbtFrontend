@@ -31,6 +31,7 @@ const SoalUjian = () => {
   const version = process.env.VITE_NODE_ENV;
   const isProduction = version == "production";
   console.log(`version: ${version}`)
+  console.log("Environment:", import.meta.env);
 
   useEffect(() => {
     if (isTrial) return;
