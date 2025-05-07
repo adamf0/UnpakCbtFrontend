@@ -339,14 +339,24 @@ const SoalUjian = () => {
                     <Button
                       variant="secondary"
                       disabled={currentIndex === 0}
-                      onClick={() => setCurrentIndex(currentIndex - 1)}
+                      onClick={() => {
+                        const now = (currentIndex - 1)
+                        if(now>=0){
+                          setCurrentIndex(now)
+                        }
+                      }}
                     >
                       ← Sebelumnya
                     </Button>
                     <Button
                       variant="primary"
                       disabled={currentIndex === pertanyaan.length - 1}
-                      onClick={() => setCurrentIndex(currentIndex + 1)}
+                      onClick={() => {
+                        const index = (currentIndex+1)
+                        if(index<=pertanyaan.length - 1){
+                          setCurrentIndex(index)
+                        }                        
+                      }}
                     >
                       Selanjutnya →
                     </Button>

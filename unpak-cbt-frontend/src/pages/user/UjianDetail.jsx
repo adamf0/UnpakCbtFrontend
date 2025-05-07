@@ -130,7 +130,7 @@ const UjianMabaDetail = () => {
 
         // Hitung jumlah soal yang telah dijawab berdasarkan tipe
         const countedAnswers = jawabanResponse.data.reduce((acc, item) => {
-          if (item.uuidTemplatePilihan) {
+          if (item.uuidTemplatePilihan && item.trial==(isTrial? "True":"False")) {
             acc[item.tipe] = (acc[item.tipe] || 0) + 1;
           }
           return acc;
@@ -212,7 +212,7 @@ const UjianMabaDetail = () => {
 
       await apiProduction.put(`/api/Ujian/Done`, payload);
 
-      alert("Ujian telah selesai!");
+      alert(isTrial? "Uji coba ujian telah selesai!":"Ujian telah selesai!");
       navigate(`/maba/${examData.idUjian}/${examData.noReg}`);
     } catch (error) {
       console.error("Gagal menyelesaikan ujian:", error);
@@ -295,7 +295,7 @@ const UjianMabaDetail = () => {
           </div>
         )}
 
-        {status === "ongoing" && (
+        {(status === "ongoing" || isTrial) && (
           <div className="mt-6 text-center">
             <Button variant="primary" size="lg" onClick={handleSelesaiUjian}>
               Selesai Mengerjakan Seluruh Ujian
