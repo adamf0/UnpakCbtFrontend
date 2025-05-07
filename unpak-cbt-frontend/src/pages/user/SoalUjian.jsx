@@ -28,11 +28,9 @@ const SoalUjian = () => {
 
   const isTrial = examData?.isTrial || false;
 
-  const version = process.env.VITE_NODE_ENV;
+  const version = import.meta.env.MODE; //process.env.VITE_NODE_ENV;
   const isProduction = version == "production";
-  console.log(`version: ${version}`)
-  console.log("Environment:", import.meta.env);
-
+  
   useEffect(() => {
     if (isTrial) return;
 
@@ -197,6 +195,8 @@ const SoalUjian = () => {
   };
 
   useEffect(() => {
+    console.log(`version: ${version}`)
+
     // Cegah klik kanan
     const handleContextMenu = (e) => {
       e.preventDefault();
