@@ -11,6 +11,7 @@ import {
 } from "react-icons/fa";
 import LoadingScreen from "../../components/LoadingScreen";
 import logo from "@assets/images/logo-unpak.png";
+import process from "process";
 
 const styleMap = {
   TPA: {
@@ -50,6 +51,8 @@ const UjianMabaDetail = () => {
   });
 
   const isTrial = examData?.isTrial || false;
+  const version = import.meta.env.MODE; //process.env.VITE_NODE_ENV;
+  const isProduction = version == "production";
 
   useEffect(() => {
     if (isTrial) return;
@@ -219,6 +222,43 @@ const UjianMabaDetail = () => {
       alert("Terjadi kesalahan, coba lagi.");
     }
   };
+
+  useEffect(() => {
+    console.log(`version: ${version}`)
+
+    // Cegah klik kanan
+    const handleContextMenu = (e) => {
+      e.preventDefault();
+    };
+
+    // Cegah beberapa shortcut keyboard untuk inspect element
+    const handleKeyDown = (e) => {
+      // F12
+      if (e.keyCode === 123) {
+        e.preventDefault();
+      }
+      // Ctrl+Shift+I
+      if (isProduction && e.ctrlKey && e.shiftKey && e.keyCode === 73) {
+        e.preventDefault();
+      }
+      // Ctrl+Shift+J
+      if (isProduction && e.ctrlKey && e.shiftKey && e.keyCode === 74) {
+        e.preventDefault();
+      }
+      // Ctrl+U (biasanya untuk melihat source code)
+      if (isProduction && e.ctrlKey && e.keyCode === 85) {
+        e.preventDefault();
+      }
+    };
+
+    document.addEventListener("contextmenu", handleContextMenu);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("contextmenu", handleContextMenu);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
 
   if (loading) {
     return <LoadingScreen message="Sedang memuat data ujian..." />;
