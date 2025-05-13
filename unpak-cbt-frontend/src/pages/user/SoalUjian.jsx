@@ -235,6 +235,34 @@ const SoalUjian = () => {
     return <LoadingScreen message="Sedang memuat data ujian..." />;
   }
 
+  function renderNext(){
+    if(status === "ongoing" && currentIndex === pertanyaan.length - 1){
+      return <Button
+          variant="primary"
+          size="lg"
+          onClick={() => {
+            navigate(-1);
+          }}
+        >
+          Selesai Mengerjakan {tipe ? `(${tipe})` : ""}
+        </Button>
+    } else if(status === "ongoing" && currentIndex < pertanyaan.length - 1){
+      return <Button
+      variant="primary"
+      disabled={currentIndex === pertanyaan.length - 1}
+      onClick={() => {
+        const index = (currentIndex+1)
+        if(index<=pertanyaan.length - 1){
+          setCurrentIndex(index)
+        }                        
+      }}
+    >
+      Selanjutnya →
+    </Button>
+    }
+    return
+  }
+
   return (
     <>
       <NavbarMaba>
@@ -338,7 +366,8 @@ const SoalUjian = () => {
 
                   {/* Tombol Navigasi */}
                   <div className="flex justify-between mt-8">
-                    <Button
+                    {
+                      (currentIndex === 0)? <div></div> : <Button
                       variant="secondary"
                       disabled={currentIndex === 0}
                       onClick={() => {
@@ -350,18 +379,8 @@ const SoalUjian = () => {
                     >
                       ← Sebelumnya
                     </Button>
-                    <Button
-                      variant="primary"
-                      disabled={currentIndex === pertanyaan.length - 1}
-                      onClick={() => {
-                        const index = (currentIndex+1)
-                        if(index<=pertanyaan.length - 1){
-                          setCurrentIndex(index)
-                        }                        
-                      }}
-                    >
-                      Selanjutnya →
-                    </Button>
+                    }
+                    {renderNext()}
                   </div>
                 </>
               )}
@@ -391,19 +410,6 @@ const SoalUjian = () => {
                 </div>
               </div>
               {/* Tombol Selesai (hanya muncul jika ujian berlangsung) */}
-              {status === "ongoing" && (
-                <div className="text-center mt-6">
-                  <Button
-                    variant="primary"
-                    size="lg"
-                    onClick={() => {
-                      navigate(-1);
-                    }}
-                  >
-                    Selesai Mengerjakan {tipe ? `(${tipe})` : ""}
-                  </Button>
-                </div>
-              )}
             </div>
           </div>
         </div>
