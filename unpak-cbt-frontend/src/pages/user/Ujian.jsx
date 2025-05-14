@@ -1,9 +1,13 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { apiProduction, formatDate } from "@src/Constant";
 import LoadingScreen from "../../components/LoadingScreen";
-import logo from "@assets/images/logo-unpak.png";
-import process from "process";
+// import logo from "@assets/images/logo-unpak.png";
+const Logo = lazy(() =>
+  import("@assets/images/logo-unpak.png").then((mod) => ({
+    default: () => <img src={mod.default} alt="Logo" className="h-16" />,
+  }))
+);
 
 const UjianMaba = () => {
   const { uuid, noReg } = useParams();
@@ -218,7 +222,9 @@ const UjianMaba = () => {
     <>
       <div className="flex bg-purple-400 flex-col items-center justify-center min-h-[100vh] px-4 py-4">
         <div className="flex justify-center mb-4">
-          <img src={logo} alt="Logo" className="h-24" />
+          <Suspense fallback={<div className="text-center py-10">Loading logo...</div>}>
+            <Logo/>
+          </Suspense>
         </div>
         <h2 className="text-2xl font-bold text-white text-center">
           Selamat Datang Calon Mahasiswa Baru!

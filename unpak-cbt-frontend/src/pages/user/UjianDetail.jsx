@@ -1,7 +1,5 @@
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
-import NavbarMaba from "../../components/NavbarMaba";
-import Button from "../../components/Button";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { apiProduction, apiSelectProduction } from "@src/Constant";
 import {
   FaBrain,
@@ -10,8 +8,14 @@ import {
   FaTimesCircle,
 } from "react-icons/fa";
 import LoadingScreen from "../../components/LoadingScreen";
-import logo from "@assets/images/logo-unpak.png";
-import process from "process";
+
+const NavbarMaba = lazy(() => import("../../components/NavbarMaba"));
+const Button = lazy(() => import("../../components/Button"));
+const Logo = lazy(() =>
+  import("@assets/images/logo-unpak.png").then((mod) => ({
+    default: () => <img src={mod.default} alt="Logo" className="h-16" />,
+  }))
+);
 
 const styleMap = {
   TPA: {
@@ -266,83 +270,85 @@ const UjianMabaDetail = () => {
 
   return (
     <>
-      <NavbarMaba>
-        <Button variant="outline" onClick={() => navigate(-1)}>
-          ← Kembali
-        </Button>
-        <img src={logo} alt="Logo" className="h-10 w-auto" />
-      </NavbarMaba>
+      <Suspense fallback={<LoadingScreen message="Sedang memuat data..." />}>
+        <NavbarMaba>
+          <Button variant="outline" onClick={() => navigate(-1)}>
+            ← Kembali
+          </Button>
+          <Logo />
+        </NavbarMaba>
 
-      <div className="container mx-auto p-4">
-        {!isTrial && (
-          <div className="text-right mt-4">
-            <span
-              className={`inline-block px-4 py-2 rounded-full text-sm font-semibold ${
-                status === "finished"
-                  ? "bg-red-100 text-red-700"
-                  : status === "ongoing"
-                  ? "bg-green-100 text-green-700"
-                  : "bg-yellow-100 text-yellow-700"
-              }`}
-            >
-              {status === "finished"
-                ? "Waktu Habis"
-                : status === "waiting"
-                ? `Menunggu Dimulai (${
-                    timeLeft ? formatTime(timeLeft) : "Loading..."
-                  })`
-                : `Sisa waktu: ${
-                    timeLeft ? formatTime(timeLeft) : "Loading..."
-                  }`}
-            </span>
-          </div>
-        )}
-
-        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {tipeUrutan
-            .filter((tipe) => groupedPertanyaan[tipe])
-            .map((tipe) => (
-              <div
-                key={tipe}
-                onClick={() => navigate(`/maba/ujian/${uuid}/tipe/${tipe}`)}
-                className={`relative border border-gray-200 rounded-xl shadow p-6 cursor-pointer flex flex-col items-center justify-center text-center font-semibold text-base ${styleMap[tipe].hover}`}
+        <div className="container mx-auto p-4">
+          {!isTrial && (
+            <div className="text-right mt-4">
+              <span
+                className={`inline-block px-4 py-2 rounded-full text-sm font-semibold ${
+                  status === "finished"
+                    ? "bg-red-100 text-red-700"
+                    : status === "ongoing"
+                    ? "bg-green-100 text-green-700"
+                    : "bg-yellow-100 text-yellow-700"
+                }`}
               >
+                {status === "finished"
+                  ? "Waktu Habis"
+                  : status === "waiting"
+                  ? `Menunggu Dimulai (${
+                      timeLeft ? formatTime(timeLeft) : "Loading..."
+                    })`
+                  : `Sisa waktu: ${
+                      timeLeft ? formatTime(timeLeft) : "Loading..."
+                    }`}
+              </span>
+            </div>
+          )}
+
+          <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {tipeUrutan
+              .filter((tipe) => groupedPertanyaan[tipe])
+              .map((tipe) => (
                 <div
-                  className={`p-4 rounded-full mb-3 ${styleMap[tipe].bg} ${styleMap[tipe].iconColor}`}
+                  key={tipe}
+                  onClick={() => navigate(`/maba/ujian/${uuid}/tipe/${tipe}`)}
+                  className={`relative border border-gray-200 rounded-xl shadow p-6 cursor-pointer flex flex-col items-center justify-center text-center font-semibold text-base ${styleMap[tipe].hover}`}
                 >
-                  {tipe === "TPA" && <FaBrain className="text-4xl" />}
-                  {tipe === "MTK" && <FaSquareRootAlt className="text-4xl" />}
-                  {tipe === "BI" && <FaLanguage className="text-4xl" />}
+                  <div
+                    className={`p-4 rounded-full mb-3 ${styleMap[tipe].bg} ${styleMap[tipe].iconColor}`}
+                  >
+                    {tipe === "TPA" && <FaBrain className="text-4xl" />}
+                    {tipe === "MTK" && <FaSquareRootAlt className="text-4xl" />}
+                    {tipe === "BI" && <FaLanguage className="text-4xl" />}
+                  </div>
+                  <span>
+                    {tipe === "BI"
+                      ? "Bahasa Inggris"
+                      : tipe === "MTK"
+                      ? "Matematika"
+                      : "Tes Potensi Akademik"}
+                  </span>
+                  <span className="mt-2 text-sm text-gray-600">
+                    {answeredCount[tipe] || 0} / {groupedPertanyaan[tipe].length}{" "}
+                    soal terjawab
+                  </span>
                 </div>
-                <span>
-                  {tipe === "BI"
-                    ? "Bahasa Inggris"
-                    : tipe === "MTK"
-                    ? "Matematika"
-                    : "Tes Potensi Akademik"}
-                </span>
-                <span className="mt-2 text-sm text-gray-600">
-                  {answeredCount[tipe] || 0} / {groupedPertanyaan[tipe].length}{" "}
-                  soal terjawab
-                </span>
-              </div>
-            ))}
+              ))}
+          </div>
+
+          {status === "finished" && (
+            <div className="mt-8 flex items-center justify-center text-red-500 font-semibold bg-red-100 text-red-700 p-4 rounded-lg">
+              <FaTimesCircle className="text-2xl mr-2" /> Ujian telah berakhir.
+            </div>
+          )}
+
+          {(status === "ongoing" || isTrial) && (
+            <div className="mt-6 text-center">
+              <Button variant="primary" size="lg" onClick={handleSelesaiUjian}>
+                Selesai Mengerjakan Seluruh Ujian
+              </Button>
+            </div>
+          )}
         </div>
-
-        {status === "finished" && (
-          <div className="mt-8 flex items-center justify-center text-red-500 font-semibold bg-red-100 text-red-700 p-4 rounded-lg">
-            <FaTimesCircle className="text-2xl mr-2" /> Ujian telah berakhir.
-          </div>
-        )}
-
-        {(status === "ongoing" || isTrial) && (
-          <div className="mt-6 text-center">
-            <Button variant="primary" size="lg" onClick={handleSelesaiUjian}>
-              Selesai Mengerjakan Seluruh Ujian
-            </Button>
-          </div>
-        )}
-      </div>
+      </Suspense>
     </>
   );
 };
