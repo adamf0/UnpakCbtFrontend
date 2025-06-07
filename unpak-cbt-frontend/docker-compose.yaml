@@ -12,6 +12,7 @@ services:
         VITE_NODE_ENV: production
     container_name: cbt_frontend
     image: cbt_frontend:0.2.1
+    restart: always
     security_opt:
       - "no-new-privileges:true"
       - apparmor=docker-default
