@@ -118,7 +118,7 @@ const UjianMabaDetail = () => {
           ? jadwalResponse.data.uuidBankSoalTrial
           : jadwalResponse.data.uuidBankSoal;
         const pertanyaanResponse = await apiProduction.get(
-          `/api/TemplatePertanyaan/BankSoal/${bankSoalId}`
+          `/api/TemplatePertanyaan/BankSoalV2/${bankSoalId}`
         );
 
         // const pertanyaanResponse = await apiProduction.get(
