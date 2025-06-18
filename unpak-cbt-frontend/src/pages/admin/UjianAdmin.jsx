@@ -143,6 +143,10 @@ const UjianAdmin = () => {
                 <CiDesktop size={16} className="mr-2" />
                 <span className="text-sm">Kuota {item.kouta}</span>
               </div>
+              <div className="flex items-center text-purple-400">
+                <CiDesktop size={16} className="mr-2" />
+                <span className="text-sm">Sisa Kuota {item.sisaKuota}</span>
+              </div>
               <div className="flex items-center text-purple-400 mb-4">
                 <CiTimer size={16} className="mr-2" />
                 <span className="text-sm">
