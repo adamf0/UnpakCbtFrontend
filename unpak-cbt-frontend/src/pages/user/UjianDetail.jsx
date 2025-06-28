@@ -207,23 +207,25 @@ const UjianMabaDetail = () => {
       return;
     }
 
-    try {
-      const payload = {
-        id: examData.idUjian,
-        noReg: examData.noReg,
-      };
+    if (confirm("Anda yakin ingin selesai ujian? pastikan kembali jawaban sudah terjawab semua.") == true) {
+      try {
+        const payload = {
+          id: examData.idUjian,
+          noReg: examData.noReg,
+        };
 
-      if (isTrial) {
-        payload.mode = "trial";
+        if (isTrial) {
+          payload.mode = "trial";
+        }
+
+        await apiProduction.put(`/api/Ujian/Done`, payload);
+
+        alert(isTrial? "Uji coba ujian telah selesai!":"Ujian telah selesai!");
+        navigate(`/maba/${examData.idUjian}/${examData.noReg}`);
+      } catch (error) {
+        console.error("Gagal menyelesaikan ujian:", error);
+        alert("Terjadi kesalahan, coba lagi.");
       }
-
-      await apiProduction.put(`/api/Ujian/Done`, payload);
-
-      alert(isTrial? "Uji coba ujian telah selesai!":"Ujian telah selesai!");
-      navigate(`/maba/${examData.idUjian}/${examData.noReg}`);
-    } catch (error) {
-      console.error("Gagal menyelesaikan ujian:", error);
-      alert("Terjadi kesalahan, coba lagi.");
     }
   };
 
