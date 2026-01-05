@@ -349,7 +349,7 @@ const SoalList = ({ soalList, fetchSoalList }) => {
                     />
                     <button
                       disabled={loadingRemoveImage}
-                      onClick={()=> handlerRemoveImage()}
+                      onClick={()=> handlerRemoveImage(detailSoal.uuid)}
                       class="absolute -top-2 -right-2 
                             ms-auto bg-red-300 text-white px-2 py-1 text-xs rounded-md hover:bg-red-600 transition
                             flex items-center justify-center transition"
