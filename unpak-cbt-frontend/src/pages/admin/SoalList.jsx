@@ -96,7 +96,6 @@ const SoalList = ({ soalList, fetchSoalList }) => {
       }
     } catch (error) {
       console.error("Error remove image soal:", error);
-      setDetailSoal(null);
     } finally {
       setLoadingRemoveImage(false);
     }
