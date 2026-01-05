@@ -95,6 +95,7 @@ const SoalList = ({ soalList, fetchSoalList }) => {
         alert("gagal hapus gambar soal")
       }
     } catch (error) {
+      alert("gagal hapus gambar soal")
       console.error("Error remove image soal:", error);
     } finally {
       setLoadingRemoveImage(false);
