@@ -20,6 +20,7 @@ const SoalList = ({ soalList, fetchSoalList }) => {
   const [selectedJawaban, setSelectedJawaban] = useState(null);
 
   const [loading, setLoading] = useState(false);
+  const [loadingRemoveImage, setLoadingRemoveImage] = useState(false);
 
   // State untuk menyimpan input yang dapat diedit
   const [pertanyaanInput, setPertanyaanInput] = useState(
@@ -72,6 +73,32 @@ const SoalList = ({ soalList, fetchSoalList }) => {
     } catch (error) {
       console.error("Error fetching detail soal:", error);
       setDetailSoal(null);
+    }
+  };
+
+  const handlerRemoveImage = async (id) => {
+    setLoadingRemoveImage(false);
+
+    try {
+      const response = await apiProduction.get(`/api/TemplatePertanyaan/${id}/RemoveImage`);
+      console.log("remove image template soal",response.status,response.data)
+
+      if(response.status==200){
+        setDetailSoal((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            gambar: null,
+          };
+        });
+      } else{
+        alert("gagal hapus gambar soal")
+      }
+    } catch (error) {
+      console.error("Error remove image soal:", error);
+      setDetailSoal(null);
+    } finally {
+      setLoadingRemoveImage(false);
     }
   };
 
@@ -312,13 +339,25 @@ const SoalList = ({ soalList, fetchSoalList }) => {
               </div>
 
               {gambarPreview && (
-                <div className="flex flex-col justify-center md:justify-center gap-3">
+                <div class="flex flex-col justify-center gap-3">
                   <p>Preview Gambar</p>
-                  <img
-                    src={gambarPreview}
-                    alt="Preview"
-                    className="w-full md:w-1/2 lg:w-1/3 rounded-md mb-3"
-                  />
+                  <div class="relative w-full md:w-1/2 lg:w-1/3">
+                    <img
+                      alt="Preview"
+                      class="w-full rounded-md"
+                      src={gambarPreview}
+                    />
+                    <button
+                      disabled={loadingRemoveImage}
+                      onClick={()=> handlerRemoveImage()}
+                      class="absolute -top-2 -right-2 
+                            ms-auto bg-red-300 text-white px-2 py-1 text-xs rounded-md hover:bg-red-600 transition
+                            flex items-center justify-center transition"
+                      type="button"
+                    >
+                      ✕
+                    </button>
+                  </div>
                 </div>
               )}
 
