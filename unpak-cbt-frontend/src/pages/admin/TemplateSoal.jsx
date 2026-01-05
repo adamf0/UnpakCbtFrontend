@@ -25,6 +25,14 @@ const TemplateSoal = () => {
     }
   };
 
+  const removeImage = (id) => {
+    setSoalList((prev) =>
+      prev.map((item) =>
+        item.uuid === id ? { ...item, gambar: null } : item
+      )
+    );
+  };
+
   useEffect(() => {
     fetchSoalList();
   }, [uuid]);
@@ -50,7 +58,7 @@ const TemplateSoal = () => {
         {loading ? (
           <p className="text-gray-500">Loading...</p>
         ) : (
-          <SoalList soalList={soalList} fetchSoalList={fetchSoalList} uuid={uuid} />
+          <SoalList soalList={soalList} removeImage={removeImage} fetchSoalList={fetchSoalList} uuid={uuid} />
         )}
       </div>
     </>

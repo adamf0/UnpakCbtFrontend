@@ -5,8 +5,9 @@ import Button from "../../components/Button";
 import Input from "../../components/Input";
 import Textarea from "../../components/Textarea";
 import { FaPlus } from "react-icons/fa";
+import PulseLoader from "react-spinners/PulseLoader";
 
-const SoalList = ({ soalList, fetchSoalList }) => {
+const SoalList = ({ soalList, removeImage, fetchSoalList }) => {
   const [activeTab, setActiveTab] = useState("TPA");
   const [showConfirm, setShowConfirm] = useState(false);
   const [showAddJawabanModal, setShowAddJawabanModal] = useState(false);
@@ -77,30 +78,39 @@ const SoalList = ({ soalList, fetchSoalList }) => {
   };
 
   const handlerRemoveImage = async (id) => {
-    setLoadingRemoveImage(false);
+    setLoadingRemoveImage(true);
 
-    try {
-      const response = await apiProduction.get(`/api/TemplatePertanyaan/${id}/RemoveImage`);
-      console.log("remove image template soal",response.status,response.data)
-
-      if(response.status==200){
-        setDetailSoal((prev) => {
-          if (!prev) return prev;
-          return {
-            ...prev,
-            gambar: null,
-          };
-        });
-      } else{
-        alert("gagal hapus gambar soal")
+    setTimeout(async ()=>{
+      try {
+        const response = await apiProduction.get(
+          `/api/TemplatePertanyaan/${id}/RemoveImage`
+        );
+    
+        console.log("remove image template soal", response.status, response.data);
+    
+        if (response.status === 200) {
+          // 🔥 update list parent
+          removeImage(id);
+    
+          // 🔥 update detail soal (INI YANG HILANG)
+          setDetailSoal((prev) =>
+            prev ? { ...prev, gambar: null } : prev
+          );
+    
+          // 🔥 update preview
+          setGambarPreview(null);
+          setGambarInput(null);
+        } else {
+          alert("Gagal hapus gambar soal");
+        }
+      } catch (error) {
+        console.error("Error remove image soal:", error);
+        alert("Gagal hapus gambar soal");
+      } finally {
+        setLoadingRemoveImage(false);
       }
-    } catch (error) {
-      alert("gagal hapus gambar soal")
-      console.error("Error remove image soal:", error);
-    } finally {
-      setLoadingRemoveImage(false);
-    }
-  };
+    },1500)
+  };  
 
   // Fetch daftar jawaban
   const fetchListJawaban = async (id) => {
@@ -355,7 +365,16 @@ const SoalList = ({ soalList, fetchSoalList }) => {
                             flex items-center justify-center transition"
                       type="button"
                     >
-                      ✕
+                      {
+                        loadingRemoveImage? 
+                        <PulseLoader
+                          color={"#fff"}
+                          loading={true}
+                          size={6}
+                          aria-label="Loading Spinner"
+                          data-testid="loader"
+                        /> : "X"
+                      }
                     </button>
                   </div>
                 </div>
