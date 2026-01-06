@@ -51,7 +51,7 @@ const UjianMabaDetail = () => {
   const tipeUrutan = ["TPA", "BI", "MTK"];
 
   const [examData, setExamData] = useState(() => {
-    return location.state || JSON.parse(sessionStorage.getItem("examData"));
+    return location.state || JSON.parse(localStorage.getItem("examData"));
   });
 
   const isTrial = examData?.isTrial || false;
@@ -89,9 +89,9 @@ const UjianMabaDetail = () => {
 
   useEffect(() => {
     if (location.state) {
-      sessionStorage.setItem("examData", JSON.stringify(location.state));
+      localStorage.setItem("examData", JSON.stringify(location.state));
     } else {
-      const data = sessionStorage.getItem("examData");
+      const data = localStorage.getItem("examData");
       if (data) {
         setExamData(JSON.parse(data));
       }

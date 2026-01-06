@@ -89,11 +89,12 @@ const AdminDashboard = () => {
       }
     } catch (error) {
       console.error("Error fetching laporan ujian:", error);
-      if (error.response && error.response.status === 404) {
-        setIsEmptyData(true);
-      } else {
-        setIsEmptyData(false);
-      }
+      // if (error.response.status >= 400) {
+      //   setIsEmptyData(true);
+      // } else {
+      //   setIsEmptyData(false);
+      // }
+      setIsEmptyData(true);
       setLaporan(null);
     }
   };

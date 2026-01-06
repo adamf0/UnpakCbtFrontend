@@ -117,7 +117,7 @@ const UjianMaba = () => {
         });
 
         // Update sessionStorage untuk menyimpan status ujian
-        sessionStorage.setItem(
+        localStorage.setItem(
           "examData",
           JSON.stringify({
             noReg: dataUjian.noReg,
@@ -148,7 +148,7 @@ const UjianMaba = () => {
       setIsLoading(true);
   
       // Simpan data ujian trial ke sessionStorage
-      sessionStorage.setItem(
+      localStorage.setItem(
         "examData",
         JSON.stringify({
           noReg: dataUjian.noReg,

@@ -26,7 +26,7 @@ const SoalUjian = () => {
   const [answeredQuestions, setAnsweredQuestions] = useState(new Map());
 
   const [examData] = useState(() => {
-    const storedData = sessionStorage.getItem("examData");
+    const storedData = localStorage.getItem("examData");
     return storedData ? JSON.parse(storedData) : null;
   });
 

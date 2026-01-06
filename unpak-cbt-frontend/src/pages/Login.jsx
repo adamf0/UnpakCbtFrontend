@@ -21,21 +21,37 @@ const Login = () => {
       const response = await apiProduction.post("/api/Authentication", {
         username,
         password,
+      },{
+        validateStatus: () => true,
       });
 
-      const token = response.data;
+      const contentType = response.headers["content-type"] || "";
+      const isJson = contentType?.includes("application/json") || contentType.includes("application/problem+json");
+
+      if (!isJson) {
+        alert("ada masalah pada server");
+        return;
+      }
+
+      const status = response.status;
+      const data = response.data;
+      if(status>=400){
+        alert(data.detail);
+        return;
+      }
+
+      const token = data;
       // console.log("Token:", token);
 
       if (token) {
-        setLoading(false);
         login(token);
       } else {
-        setLoading(false);
         setError("Login gagal, silakan coba lagi.");
       }
     } catch (err) {
-      setLoading(false);
       setError(err.response?.data?.message || "Terjadi kesalahan saat login.");
+    } finally{
+      setLoading(false);
     }
   };
 
