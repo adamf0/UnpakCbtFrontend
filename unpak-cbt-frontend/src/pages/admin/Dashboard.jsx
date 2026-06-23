@@ -308,7 +308,7 @@ const AdminDashboard = () => {
                         className={`flex items-center gap-2 px-4 py-1 rounded-full text-xs font-semibold uppercase tracking-wide ${
                           ujian.statusUjian === "ongoing"
                             ? "bg-green-200 text-green-800"
-                            : ujian.statusUjian === "upcoming"
+                            : ujian.statusUjian === "not started"
                             ? "bg-yellow-200 text-yellow-800"
                             : "bg-red-200 text-red-800"
                         }`}
@@ -318,7 +318,7 @@ const AdminDashboard = () => {
                             <span className="w-2 h-2 bg-green-600 rounded-full animate-pulse"></span>
                             Sedang Berlangsung
                           </>
-                        ) : ujian.statusUjian === "upcoming" ? (
+                        ) : ujian.statusUjian === "not started" ? (
                           <>
                             <span className="w-2 h-2 bg-yellow-600 rounded-full animate-pulse"></span>
                             Akan Datang
