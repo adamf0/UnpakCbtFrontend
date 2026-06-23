@@ -58,7 +58,7 @@ const UjianMaba = () => {
         let timer;
         if (jadwal) {
             timer = setInterval(() => {
-                const now = new Date(new Date().toLocaleString("id-ID", { timeZone: "Asia/Jakarta" }));
+                const now = new Date();
                 const start = new Date(
                     `${jadwal.tanggal}T${jadwal.jamMulai}:00+07:00`,
                 );

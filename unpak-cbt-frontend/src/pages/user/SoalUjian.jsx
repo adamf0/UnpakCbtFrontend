@@ -102,7 +102,7 @@ const SoalUjian = () => {
 
                 // Timer
                 const timer = setInterval(() => {
-                    const now = new Date(new Date().toLocaleString("id-ID", { timeZone: "Asia/Jakarta" }));
+                    const now = new Date();
                     const nowWib = new Date(
                         now.getTime() + (7 * 60 + now.getTimezoneOffset()) * 60000
                     );
