@@ -17,35 +17,49 @@ const UjianAdmin = () => {
   const [showConfirm, setShowConfirm] = useState(false);
 
   useEffect(() => {
-    // Fetch jadwal ujian
-    apiProduction
-      .get("/api/JadwalUjian")
-      .then(async (response) => {
-        const jadwal = response.data;
+    // Fetch jadwal ujian dan bank soal secara paralel
+    Promise.all([
+      apiProduction.get("/api/JadwalUjian"),
+      apiProduction.get("/api/BankSoal"),
+    ])
+      .then(async ([jadwalRes, bankSoalRes]) => {
+        const jadwal = jadwalRes.data || [];
         console.log("Data fetched:", jadwal);
         setData(jadwal);
 
-        // Filter hanya yang memiliki uuidBankSoal
-        const bankSoalIds = jadwal
-          .map((item) => item.uuidBankSoal)
-          .filter((id) => id !== null);
-
-        // Fetch semua judul bank soal secara paralel
-        const bankSoalPromises = bankSoalIds.map((id) =>
-          apiProduction.get(`/api/BankSoal/${id}`).then((res) => ({
-            id,
-            judul: res.data.judul, // Sesuaikan dengan struktur response API
-          }))
-        );
-
-        // Tunggu semua request selesai
-        const results = await Promise.all(bankSoalPromises);
-
-        // Simpan hasilnya dalam objek { id: judul }
-        const bankSoalMap = results.reduce((acc, item) => {
-          acc[item.id] = item.judul;
+        // Simpan bank soal dalam objek { id: judul }
+        const bankSoalMap = (bankSoalRes.data || []).reduce((acc, item) => {
+          const id = item.uuid || item.id;
+          if (id) acc[id] = item.judul;
           return acc;
         }, {});
+
+        // Filter ID bank soal unik dari jadwal yang belum ter-cover oleh /api/BankSoal
+        const missingUniqueIds = [
+          ...new Set(
+            jadwal
+              .map((item) => item.uuidBankSoal)
+              .filter((id) => id !== null && id !== undefined && !bankSoalMap[id])
+          ),
+        ];
+
+        // Jika ada ID unik yang belum ada di map, fetch secara spesifik
+        if (missingUniqueIds.length > 0) {
+          const missingResults = await Promise.all(
+            missingUniqueIds.map((id) =>
+              apiProduction
+                .get(`/api/BankSoal/${id}`)
+                .then((res) => ({ id, judul: res.data?.judul }))
+                .catch(() => null)
+            )
+          );
+
+          missingResults.forEach((item) => {
+            if (item && item.id && item.judul) {
+              bankSoalMap[item.id] = item.judul;
+            }
+          });
+        }
 
         setBankSoal(bankSoalMap);
       })
